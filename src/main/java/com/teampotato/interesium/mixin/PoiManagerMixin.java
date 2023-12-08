@@ -70,11 +70,7 @@ public abstract class PoiManagerMixin extends SectionStorage<PoiSection> impleme
     @Overwrite
     public Optional<BlockPos> find(Predicate<PoiType> typePredicate, Predicate<BlockPos> posPredicate, BlockPos pos, int distance, PoiManager.Occupancy status) {
         Iterator<BlockPos> blockPosIterator = InteresiumPoiManager.findAllIterator(typePredicate, posPredicate, pos, distance, status, (PoiManager) (Object) this);
-        try {
-            return Optional.ofNullable(blockPosIterator.next());
-        } catch (Throwable throwable) {
-            return Optional.empty();
-        }
+        return Optional.ofNullable(blockPosIterator.hasNext() ? blockPosIterator.next() : null);
     }
 
     @Inject(method = "findClosest", at = @At("HEAD"), cancellable = true)
