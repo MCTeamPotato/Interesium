@@ -8,7 +8,9 @@
   },
   "mixins": [
     "AcquirePoiMixin",
+    "BeeGoToHiveGoalMixin",
     "BeeLocateHiveGoalMixin",
+    "BlockPosMixin",
     "CatSpawnerMixin",
     "GolemRandomStrollInVillageGoalMixin",
     "MobEffectsMixin",
