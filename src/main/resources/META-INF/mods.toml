@@ -8,7 +8,7 @@ version = "${version}"
 displayName = "Interesium"
 authors = "TeamPotato"
 description = '''
-A Minecraft Mod.
+A mod that optimizes Mojang's PointOfInterests system. Concept from Lithium but extended in execution.
 '''
 
 [[dependencies.interesium]]
