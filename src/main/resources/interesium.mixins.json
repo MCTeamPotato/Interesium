@@ -16,6 +16,7 @@
     "PoiManagerMixin",
     "PoiSectionMixin",
     "PortalForcerMixin",
+    "SecondaryPoiSensorMixin",
     "SetClosestHomeAsWalkTargetMixin"
   ],
   "overwrites": {
