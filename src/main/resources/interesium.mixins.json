@@ -1,0 +1,21 @@
+{
+  "required": true,
+  "package": "com.teampotato.interesium.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "minVersion": "0.8",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": [
+    "AcquirePoiMixin",
+    "BeeLocateHiveGoalMixin",
+    "CatSpawnerMixin",
+    "GolemRandomStrollInVillageGoalMixin",
+    "MobEffectsMixin",
+    "NearestBedSensorMixin",
+    "PoiManagerMixin",
+    "PoiSectionMixin",
+    "PortalForcerMixin",
+    "SetClosestHomeAsWalkTargetMixin"
+  ]
+}
