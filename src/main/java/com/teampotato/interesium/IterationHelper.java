@@ -32,9 +32,7 @@ public final class IterationHelper {
                     int x = this.pos.x;
                     int z = this.pos.z;
                     if (x == endChunkPosX) {
-                        if (z == endChunkPosZ) {
-                            return false;
-                        }
+                        if (z == endChunkPosZ) return false;
                         this.pos.x = startChunkPosX;
                         this.pos.z = z + l;
                     } else {

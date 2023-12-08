@@ -7,7 +7,7 @@ import com.teampotato.interesium.IterationHelper;
 import com.teampotato.interesium.api.ExtendedPoiManager;
 import com.teampotato.interesium.api.ExtendedPoiSection;
 import it.unimi.dsi.fastutil.longs.LongSet;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.datafix.DataFixTypes;
@@ -65,7 +65,7 @@ public abstract class PoiManagerMixin extends SectionStorage<PoiSection> impleme
 
     /**
      * @author Kasualix
-     * @reason Avoid stream; Using overwriting to avoid unnecessary operation in injecting
+     * @reason Avoid stream; Using overwriting to avoid too much unnecessary operation in injecting
      */
     @Overwrite
     public Optional<BlockPos> find(Predicate<PoiType> typePredicate, Predicate<BlockPos> posPredicate, BlockPos pos, int distance, PoiManager.Occupancy status) {
@@ -95,7 +95,7 @@ public abstract class PoiManagerMixin extends SectionStorage<PoiSection> impleme
 
     /**
      * @author Kasualix
-     * @reason Avoid stream; Using overwriting to avoid unnecessary operation in injecting
+     * @reason Avoid stream; Using overwriting to avoid too much unnecessary operation in injecting
      */
     @Overwrite
     public Optional<BlockPos> take(Predicate<PoiType> typePredicate, Predicate<BlockPos> posPredicate, BlockPos pos, int distance) {
@@ -113,22 +113,26 @@ public abstract class PoiManagerMixin extends SectionStorage<PoiSection> impleme
 
     /**
      * @author Kasualix
-     * @reason Avoid stream; Using overwriting to avoid unnecessary operation in injecting;
+     * @reason Avoid stream; Using overwriting to avoid too much unnecessary operation in injecting;
      */
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     @Overwrite
-    public Optional<BlockPos> getRandom(Predicate<PoiType> typePredicate, Predicate<BlockPos> posPredicate, PoiManager.Occupancy status, BlockPos pos, int distance, Random rand) {
-        for (PoiRecord poiRecord : new ReferenceOpenHashSet<> /* random element insertion, replacing Collections#shuffle */(InteresiumPoiManager.getInRangeIterator(typePredicate, pos, distance, status, (PoiManager) (Object) this))) {
+    public Optional<BlockPos> getRandom(Predicate<PoiType> typePredicate, Predicate<BlockPos> posPredicate, PoiManager.Occupancy status, BlockPos pos, int distance, Random random) {
+        ReferenceArrayList<PoiRecord> poiRecords = new ReferenceArrayList<>(InteresiumPoiManager.getInRangeIterator(typePredicate, pos, distance, status, (PoiManager) (Object) this));
+        for (PoiRecord poiRecord : poiRecords) {
             BlockPos blockPos = poiRecord.getPos();
             if (posPredicate.test(blockPos)) {
-                return Optional.ofNullable(blockPos);
+                if (random.nextBoolean()) return Optional.ofNullable(blockPos);
+            } else {
+                poiRecords.remove(poiRecord);
             }
         }
-        return Optional.empty();
+        return poiRecords.isEmpty() ? Optional.empty() : Optional.ofNullable(poiRecords.get(random.nextInt(poiRecords.size())).getPos());
     }
 
     /**
      * @author Kasualix
-     * @reason Avoid stream; Using overwriting to avoid unnecessary operation in injecting
+     * @reason Avoid stream; Using overwriting to avoid too much unnecessary operation in injecting
      */
     @SuppressWarnings("OptionalAssignedToNull")
     @Overwrite

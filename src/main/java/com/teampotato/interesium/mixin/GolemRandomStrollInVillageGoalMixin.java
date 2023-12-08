@@ -25,7 +25,7 @@ public abstract class GolemRandomStrollInVillageGoalMixin extends RandomStrollGo
 
     /**
      * @author Kasualix
-     * @reason Avoid stream usage; Use overwriting to avoid unnecessary allocation in injecting; Earlierly break the iteration and return the value if possible.
+     * @reason Avoid stream usage; Use overwriting to avoid too much unnecessary allocation in injecting; Earlierly break the iteration and return the value if possible.
      */
     @Overwrite
     @Nullable
