@@ -17,5 +17,8 @@
     "PoiSectionMixin",
     "PortalForcerMixin",
     "SetClosestHomeAsWalkTargetMixin"
-  ]
+  ],
+  "overwrites": {
+    "conformVisibility": true
+  }
 }
