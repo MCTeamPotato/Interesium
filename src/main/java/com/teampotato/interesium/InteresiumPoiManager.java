@@ -7,6 +7,8 @@ import com.teampotato.interesium.api.ExtendedPoiSection;
 import it.unimi.dsi.fastutil.objects.ObjectRBTreeSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiRecord;
 import net.minecraft.world.entity.ai.village.poi.PoiSection;
@@ -110,5 +112,27 @@ public final class InteresiumPoiManager {
                 return recordIterator.next();
             }
         };
+    }
+
+    public static long canEntitySpawn(PoiManager poiManager, Predicate<PoiType> predicate, BlockPos pos, int distance, PoiManager.Occupancy status) {
+        long count = 0L;
+        Iterator<PoiRecord> poiRecordIterator = InteresiumPoiManager.getInRangeIterator(predicate, pos, distance, status, poiManager);
+        while (poiRecordIterator.hasNext()) {
+            poiRecordIterator.next();
+            count = count + 1;
+            if (count == 5L) return count;
+        }
+        return 0L;
+    }
+
+    public static Iterator<PoiRecord> blueSkies$getPoisInCircle(@NotNull Entity entity, PoiType type, int radius) {
+        if (entity.level instanceof ServerLevel) {
+            ServerLevel level = (ServerLevel) entity.level;
+            BlockPos startPos = entity.blockPosition();
+            PoiManager poiManager = level.getPoiManager();
+            poiManager.ensureLoadedAndValid(level, startPos, radius);
+            return getInRangeIterator((poiType) -> poiType == type, startPos, radius, PoiManager.Occupancy.ANY, poiManager);
+        }
+        return Collections.emptyIterator();
     }
 }

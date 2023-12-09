@@ -11,13 +11,21 @@
     "BeeLocateHiveGoalMixin",
     "CatSpawnerMixin",
     "GolemRandomStrollInVillageGoalMixin",
-    "MobEffectsMixin",
     "NearestBedSensorMixin",
     "PoiManagerMixin",
     "PoiSectionMixin",
     "PortalForcerMixin",
+    "RaidsMixin",
     "SecondaryPoiSensorMixin",
-    "SetClosestHomeAsWalkTargetMixin"
+    "SetClosestHomeAsWalkTargetMixin",
+    "atum.ServalSpawnerMixin",
+    "atum.TeleporterAtumMixin",
+    "blueskies.ArachnarchEntityScreechAttackGoalMixin",
+    "blueskies.SkiesEventsMixin",
+    "blueskies.SkiesPlayerEventsDungeonBalancingChecksMixin",
+    "blueskies.SkiesPlayerMixin",
+    "mca.BuildingMixin",
+    "mca.ResidencyMixin"
   ],
   "overwrites": {
     "conformVisibility": true
