@@ -16,10 +16,7 @@ import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.SortedSet;
+import java.util.*;
 import java.util.function.Predicate;
 
 @Mod(InteresiumPoiManager.MOD_ID)
@@ -51,15 +48,17 @@ public final class InteresiumPoiManager {
         };
     }
 
-    public static @NotNull SortedSet<BlockPos> findAllClosestFive(Predicate<PoiType> typePredicate, Predicate<BlockPos> posPredicate, BlockPos pos, int distance, PoiManager.Occupancy status, PoiManager poiManager) {
-        SortedSet<BlockPos> blockPosSortedSet = new ObjectRBTreeSet<>(Comparator.comparingDouble(blockPos -> blockPos.distSqr(pos)));
-        Iterator<BlockPos> all = findAllIterator(typePredicate, posPredicate, pos, distance, status, poiManager);
-        while (all.hasNext()) {
-            BlockPos blockPos = all.next();
-            blockPosSortedSet.add(blockPos);
-            if (blockPosSortedSet.size() == 5) break;
+    public static @NotNull Set<BlockPos> findAllClosestFive(Predicate<PoiType> typePredicate, Predicate<BlockPos> posPredicate, BlockPos pos, int distance, PoiManager.Occupancy status, PoiManager poiManager) {
+        final ObjectRBTreeSet<BlockPos> blockPosSortedSet = new ObjectRBTreeSet<>(Comparator.comparingDouble(blockPos -> blockPos.distSqr(pos)));
+        final Iterator<BlockPos> all = findAllIterator(typePredicate, posPredicate, pos, distance, status, poiManager);
+        while (all.hasNext()) blockPosSortedSet.add(all.next());
+        if (blockPosSortedSet.size() <= 5) return blockPosSortedSet;
+        final Set<BlockPos> limitedBlockPosSet = new LinkedHashSet<>(5);
+        for (BlockPos blockPos : blockPosSortedSet) {
+            limitedBlockPosSet.add(blockPos);
+            if (limitedBlockPosSet.size() == 5) break;
         }
-        return blockPosSortedSet;
+        return limitedBlockPosSet;
     }
 
     public static @NotNull Iterator<PoiRecord> getInSquareIterator(Predicate<PoiType> predicate, @NotNull BlockPos pos, int distance, PoiManager.Occupancy status, PoiManager poiManager) {
@@ -67,10 +66,6 @@ public final class InteresiumPoiManager {
         final int x = pos.getX() >> 4;
         final int z = pos.getZ() >> 4;
         final Iterator<ChunkPos> chunkPosIterator = IterationHelper.rangeClosedIterator(x - radius, z - radius, x + radius, z + radius);
-        final Predicate<PoiRecord> poiRecordFilter = poiRecord -> {
-            BlockPos poiRecordPos = poiRecord.getPos();
-            return Math.abs(poiRecordPos.getX() - pos.getX()) <= distance && Math.abs(poiRecordPos.getZ() - pos.getZ()) <= distance;
-        };
 
         return new Iterator<PoiRecord>() {
             Iterator<PoiRecord> currentIterator = Collections.emptyIterator();
@@ -79,7 +74,10 @@ public final class InteresiumPoiManager {
             public boolean hasNext() {
                 while (!currentIterator.hasNext() && chunkPosIterator.hasNext()) {
                     currentIterator = InteresiumPoiManager.getInChunkIterator(predicate, chunkPosIterator.next(), status, poiManager);
-                    currentIterator = Iterators.filter(currentIterator, poiRecordFilter::test);
+                    currentIterator = Iterators.filter(currentIterator, poiRecord -> {
+                        final BlockPos poiRecordPos = poiRecord.getPos();
+                        return Math.abs(poiRecordPos.getX() - pos.getX()) <= distance && Math.abs(poiRecordPos.getZ() - pos.getZ()) <= distance;
+                    });
                 }
                 return currentIterator.hasNext();
             }
@@ -91,17 +89,16 @@ public final class InteresiumPoiManager {
         };
     }
 
-
     @Contract(value = "_, _, _, _ -> new", pure = true)
     public static @NotNull Iterator<PoiRecord> getInChunkIterator(Predicate<PoiType> predicate, ChunkPos posChunk, PoiManager.Occupancy status, PoiManager poiManager) {
         return new Iterator<PoiRecord>() {
             int y = 0;
-            private Iterator<PoiRecord> recordIterator = Collections.emptyIterator();
+            Iterator<PoiRecord> recordIterator = Collections.emptyIterator();
 
             @Override
             public boolean hasNext() {
                 while (!recordIterator.hasNext() && y < 16) {
-                    PoiSection poiSection = ((ExtendedPoiManager) poiManager).interesium$getOrLoad(SectionPos.asLong(posChunk.x, y, posChunk.z));
+                    final PoiSection poiSection = ((ExtendedPoiManager) poiManager).interesium$getOrLoad(SectionPos.asLong(posChunk.x, y, posChunk.z));
                     if (poiSection != null) recordIterator = ((ExtendedPoiSection) poiSection).interesium$getRecordsIterator(predicate, status);
                     y++;
                 }

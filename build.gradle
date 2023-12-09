@@ -29,6 +29,7 @@ repositories {
         url 'https://maven.parchmentmc.org'
     }
     maven {
+        name "CurseForge"
         url "https://cursemaven.com"
         content {
             includeGroup "curse.maven"
