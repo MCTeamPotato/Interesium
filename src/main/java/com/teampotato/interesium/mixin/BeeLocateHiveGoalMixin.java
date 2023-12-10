@@ -1,6 +1,7 @@
 package com.teampotato.interesium.mixin;
 
 import com.teampotato.interesium.InteresiumPoiManager;
+import com.teampotato.interesium.compat.ResourcefulBeesCompat;
 import it.unimi.dsi.fastutil.objects.ObjectRBTreeSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -32,7 +33,7 @@ public abstract class BeeLocateHiveGoalMixin {
         SortedSet<BlockPos> blockPosSortedSet = new ObjectRBTreeSet<>(Comparator.comparingDouble(blockPos -> blockPos.distSqr(blockPosition)));
         Iterator<PoiRecord> poiRecordIterator = InteresiumPoiManager.getInRangeIterator(
                 InteresiumPoiManager.isResourcefulBeesLoaded ?
-                        poiType -> poiType == PoiType.BEEHIVE || poiType == PoiType.BEE_NEST || poiType == com.resourcefulbees.resourcefulbees.registry.ModPOIs.TIERED_BEEHIVE_POI.get() :
+                        poiType -> poiType == PoiType.BEEHIVE || poiType == PoiType.BEE_NEST || poiType == ResourcefulBeesCompat.getTieredBeehivePoi() :
                         poiType -> poiType == PoiType.BEEHIVE || poiType == PoiType.BEE_NEST
                 , blockPosition, 20, PoiManager.Occupancy.ANY, ((ServerLevel) this.field_20375.level).getPoiManager());
         while (poiRecordIterator.hasNext()) {
