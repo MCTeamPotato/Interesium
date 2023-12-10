@@ -45,7 +45,7 @@ public abstract class ReclaimerTeleporterMixin {
         return Optional.empty();
     }
 
-    @Inject(method = "getPortalInfo", at = @At(value = "INVOKE", target = "Lnet/minecraft/resources/ResourceLocation;toString()Ljava/lang/String;", shift = At.Shift.BEFORE), locals = LocalCapture.PRINT, cancellable = true)
+    @Inject(method = "getPortalInfo", at = @At(value = "INVOKE", target = "Lnet/minecraft/resources/ResourceLocation;toString()Ljava/lang/String;", shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILEXCEPTION, cancellable = true)
     private void interesium$getPortalInfo(Entity entity, ServerLevel targetWorld, Function<ServerLevel, PortalInfo> defaultPortalInfo, CallbackInfoReturnable<PortalInfo> cir, WorldBorder worldBorder, double minX, double minZ, double maxX, double maxZ, double scale, BlockPos.MutableBlockPos targetPos, PoiManager poiManager, int blockSearchRange, Optional<BlockPos> optional) {
         Iterator<PoiRecord> poiRecordIterator = InteresiumPoiManager.getInSquareIterator((poiType) -> poiType == BPModPOIs.PORTAL_LAKE_POI, targetPos, blockSearchRange, PoiManager.Occupancy.ANY, poiManager);
         SortedSet<BlockPos> blockPosSortedSet = new ObjectRBTreeSet<>(Comparator.comparingDouble((pos) -> (double)this.xzDist(pos, targetPos)));
