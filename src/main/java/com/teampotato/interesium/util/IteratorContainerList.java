@@ -1,4 +1,4 @@
-package com.teampotato.interesium;
+package com.teampotato.interesium.util;
 
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import org.jetbrains.annotations.NotNull;

@@ -4,6 +4,7 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.UnmodifiableIterator;
 import com.teampotato.interesium.api.ExtendedPoiManager;
 import com.teampotato.interesium.api.ExtendedPoiSection;
+import com.teampotato.interesium.util.IterationHelper;
 import it.unimi.dsi.fastutil.objects.ObjectRBTreeSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;

@@ -2,7 +2,7 @@ package com.teampotato.interesium.mixin.vampirism;
 
 import com.google.common.collect.Iterators;
 import com.teampotato.interesium.InteresiumPoiManager;
-import com.teampotato.interesium.IteratorContainerList;
+import com.teampotato.interesium.util.IteratorContainerList;
 import de.teamlapen.vampirism.api.entity.factions.IFaction;
 import de.teamlapen.vampirism.config.VampirismConfig;
 import de.teamlapen.vampirism.tileentity.TotemHelper;

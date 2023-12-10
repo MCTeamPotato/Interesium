@@ -3,7 +3,7 @@ package com.teampotato.interesium.mixin;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Codec;
 import com.teampotato.interesium.InteresiumPoiManager;
-import com.teampotato.interesium.IterationHelper;
+import com.teampotato.interesium.util.IterationHelper;
 import com.teampotato.interesium.api.ExtendedPoiManager;
 import com.teampotato.interesium.api.ExtendedPoiSection;
 import it.unimi.dsi.fastutil.longs.LongSet;
