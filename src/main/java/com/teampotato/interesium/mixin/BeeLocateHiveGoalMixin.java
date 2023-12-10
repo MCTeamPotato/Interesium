@@ -33,7 +33,7 @@ public abstract class BeeLocateHiveGoalMixin {
         SortedSet<BlockPos> blockPosSortedSet = new ObjectRBTreeSet<>(Comparator.comparingDouble(blockPos -> blockPos.distSqr(blockPosition)));
         Iterator<PoiRecord> poiRecordIterator = InteresiumPoiManager.getInRangeIterator(
                 InteresiumPoiManager.isResourcefulBeesLoaded ?
-                        poiType -> poiType == PoiType.BEEHIVE || poiType == PoiType.BEE_NEST || poiType == ResourcefulBeesCompat.getTieredBeehivePoi() :
+                        poiType -> poiType == PoiType.BEEHIVE || poiType == PoiType.BEE_NEST || poiType == ResourcefulBeesCompat.TIERED_BEEHIVE_POI :
                         poiType -> poiType == PoiType.BEEHIVE || poiType == PoiType.BEE_NEST
                 , blockPosition, 20, PoiManager.Occupancy.ANY, ((ServerLevel) this.field_20375.level).getPoiManager());
         while (poiRecordIterator.hasNext()) {
