@@ -1,6 +1,7 @@
 {
   "required": true,
   "package": "com.teampotato.interesium.mixin",
+  "plugin": "com.teampotato.interesium.InteresiumMixinManager",
   "compatibilityLevel": "JAVA_8",
   "minVersion": "0.8",
   "injectors": {
@@ -20,12 +21,18 @@
     "SetClosestHomeAsWalkTargetMixin",
     "atum.ServalSpawnerMixin",
     "atum.TeleporterAtumMixin",
-    "blueskies.ArachnarchEntityScreechAttackGoalMixin",
-    "blueskies.SkiesEventsMixin",
-    "blueskies.SkiesPlayerEventsDungeonBalancingChecksMixin",
-    "blueskies.SkiesPlayerMixin",
+    "betterportals.ReclaimerTeleporterMixin",
+    "blue_skies.ArachnarchEntityScreechAttackGoalMixin",
+    "blue_skies.SkiesEventsMixin",
+    "blue_skies.SkiesPlayerEventsDungeonBalancingChecksMixin",
+    "blue_skies.SkiesPlayerMixin",
+    "forbidden_arcanus.ArcaneCrystalObeliskTileEntityMixin",
+    "gaiadimension.GaiaTeleporterMixin",
     "mca.BuildingMixin",
-    "mca.ResidencyMixin"
+    "mca.ResidencyMixin",
+    "phi.NearbySpeechSelectorMixin",
+    "vampirism.TotemHelperMixin",
+    "vampirism.TotemTileEntityMixin"
   ],
   "overwrites": {
     "conformVisibility": true

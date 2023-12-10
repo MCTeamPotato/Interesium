@@ -1,4 +1,4 @@
-package com.teampotato.interesium.mixin.blueskies;
+package com.teampotato.interesium.mixin.blue_skies;
 
 import com.legacy.blue_skies.blocks.construction.TroughBlock;
 import com.legacy.blue_skies.events.SkiesEvents;
@@ -48,7 +48,9 @@ public abstract class SkiesEventsMixin {
 
     @Inject(method = "onEntityCheckSpawn", at = @At(value = "INVOKE", target = "Lcom/legacy/blue_skies/util/EntityUtil;getPoisInCircle(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/ai/village/poi/PoiType;I)Ljava/util/stream/Stream;", shift = At.Shift.BEFORE), cancellable = true)
     private static void interesium$onEntityCheckSpawn(LivingSpawnEvent.CheckSpawn event, CallbackInfo ci) {
+        ci.cancel();
         Iterator<PoiRecord> poiRecordIterator = InteresiumPoiManager.blueSkies$getPoisInCircle(event.getEntityLiving(), SkiesPointsOfInterest.WARDING_PEARL, 25);
-        Optional.ofNullable(poiRecordIterator.hasNext() ? poiRecordIterator.next() : null).ifPresent(poiRecord -> event.setResult(Event.Result.DENY));
+        PoiRecord poiRecord = poiRecordIterator.hasNext() ? poiRecordIterator.next() : null;
+        if (poiRecord != null) event.setResult(Event.Result.DENY);
     }
 }

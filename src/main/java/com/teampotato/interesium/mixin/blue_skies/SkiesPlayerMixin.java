@@ -1,4 +1,4 @@
-package com.teampotato.interesium.mixin.blueskies;
+package com.teampotato.interesium.mixin.blue_skies;
 
 import com.legacy.blue_skies.blocks.dungeon.KeystoneBlock;
 import com.legacy.blue_skies.capability.SkiesPlayer;

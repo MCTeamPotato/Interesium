@@ -14,6 +14,7 @@ import net.minecraft.world.entity.ai.village.poi.PoiRecord;
 import net.minecraft.world.entity.ai.village.poi.PoiSection;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -26,6 +27,12 @@ public final class InteresiumPoiManager {
     public static final String MOD_ID = "interesium";
 
     public static final Predicate<? super PoiRecord> ALWAYS_TRUE = poiRecord -> true;
+
+    public static boolean isResourcefulBeesLoaded;
+
+    public InteresiumPoiManager() {
+        isResourcefulBeesLoaded = ModList.get().isLoaded("resourcefulbees");
+    }
 
     @Contract("_, _, _, _, _ -> new")
     public static @NotNull UnmodifiableIterator<PoiRecord> getInRangeIterator(Predicate<PoiType> predicate, BlockPos pos, int distance, PoiManager.Occupancy status, PoiManager poiManager) {

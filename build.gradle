@@ -47,13 +47,29 @@ dependencies {
         officialMojangMappings()
         parchment("org.parchmentmc.data:parchment-${minecraft_version}:${parchment_version}@zip")
     }
-    //mappings "net.fabricmc:yarn:${minecraft_version}+build.${project.yarn_mappings}:v2"
     forge "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
     modImplementation(files("deps/minecraft-comes-alive-7.3.23+1.16.5-forge.jar"))
     modImplementation "me.shedaniel:architectury-forge:1.32.68"
+
     modImplementation "curse.maven:atum-59621:3990329"
+    modImplementation "curse.maven:curios-309927:4419403"
+
     modImplementation "curse.maven:blue-skies-312918:3411324"
+
+    modImplementation "curse.maven:phi-476728:4510760"
+    modImplementation "curse.maven:psi-241665:4458005"
+
+    modImplementation "curse.maven:resourceful-bees-384508:3793389"
+
+    modImplementation "curse.maven:yungs-better-portals-443723:3537560"
+
+    modImplementation "curse.maven:gaia-dimension-302529:3317421"
+
+    modImplementation "curse.maven:vampirism-become-a-vampire-233029:4799953"
+
+    modImplementation "curse.maven:forbidden-arcanus-309858:3646126"
+    modImplementation "curse.maven:valhelsia-core-416935:3592369"
 }
 
 processResources {

@@ -1,4 +1,4 @@
-package com.teampotato.interesium.mixin.blueskies;
+package com.teampotato.interesium.mixin.blue_skies;
 
 import com.legacy.blue_skies.events.SkiesPlayerEvents;
 import com.legacy.blue_skies.registries.SkiesPointsOfInterest;

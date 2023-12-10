@@ -115,7 +115,6 @@ public abstract class PoiManagerMixin extends SectionStorage<PoiSection> impleme
      * @author Kasualix
      * @reason Avoid stream; Using overwriting to avoid too much unnecessary operation in injecting;
      */
-    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     @Overwrite
     public Optional<BlockPos> getRandom(Predicate<PoiType> typePredicate, Predicate<BlockPos> posPredicate, PoiManager.Occupancy status, BlockPos pos, int distance, Random random) {
         ReferenceArrayList<PoiRecord> poiRecords = new ReferenceArrayList<>(InteresiumPoiManager.getInRangeIterator(typePredicate, pos, distance, status, (PoiManager) (Object) this));
