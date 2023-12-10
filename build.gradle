@@ -63,6 +63,7 @@ dependencies {
     modImplementation "curse.maven:resourceful-bees-384508:3793389"
 
     modImplementation "curse.maven:yungs-better-portals-443723:3537560"
+    modImplementation "curse.maven:yungs-api-421850:3494919"
 
     modImplementation "curse.maven:gaia-dimension-302529:3317421"
 
