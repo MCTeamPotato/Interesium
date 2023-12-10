@@ -5,6 +5,7 @@ import com.google.common.collect.UnmodifiableIterator;
 import com.teampotato.interesium.api.ExtendedPoiManager;
 import com.teampotato.interesium.api.ExtendedPoiSection;
 import com.teampotato.interesium.util.IterationHelper;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectRBTreeSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -20,7 +21,10 @@ import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.function.Predicate;
 
 @Mod(InteresiumPoiManager.MOD_ID)
@@ -63,7 +67,7 @@ public final class InteresiumPoiManager {
         final Iterator<BlockPos> all = findAllIterator(typePredicate, posPredicate, pos, distance, status, poiManager);
         while (all.hasNext()) blockPosSortedSet.add(all.next());
         if (blockPosSortedSet.size() <= 5) return blockPosSortedSet;
-        final Set<BlockPos> limitedBlockPosSet = new LinkedHashSet<>(5);
+        final Set<BlockPos> limitedBlockPosSet = new ObjectLinkedOpenHashSet<>(5);
         for (BlockPos blockPos : blockPosSortedSet) {
             limitedBlockPosSet.add(blockPos);
             if (limitedBlockPosSet.size() == 5) break;
