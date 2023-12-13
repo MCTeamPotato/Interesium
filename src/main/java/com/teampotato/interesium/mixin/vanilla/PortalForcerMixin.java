@@ -2,7 +2,6 @@ package com.teampotato.interesium.mixin.vanilla;
 
 import com.google.common.collect.Iterators;
 import com.teampotato.interesium.api.InteresiumPoiManager;
-import com.teampotato.interesium.mixin.InteresiumMixinManager;
 import it.unimi.dsi.fastutil.PriorityQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayPriorityQueue;
 import net.minecraft.BlockUtil;
@@ -31,25 +30,14 @@ import java.util.Optional;
 @Mixin(PortalForcer.class)
 public abstract class PortalForcerMixin {
 
-    //从主世界到下界：20 40 18 1 12 0 6 0 avg: 12.125
-    //从下界到主世界：51 2 13 15 12 22 17 17 avg: 18.625
-
-    //从主世界到下界：73 14 avg:
-    //从下界到主世界：39 534 avg:
-
-
     @Shadow @Final protected ServerLevel level;
 
     @Inject(method = "findPortalAround", at = @At("HEAD"), cancellable = true)
     private void interesium$findPortalAround(BlockPos pos, boolean isNether, CallbackInfoReturnable<Optional<BlockUtil.FoundRectangle>> cir) {
-        long begin = System.currentTimeMillis();
         PriorityQueue<PoiRecord> poiRecordPriorityQueue = new ObjectArrayPriorityQueue<>(2, Comparator.<PoiRecord>comparingDouble(poiRecord -> poiRecord.getPos().distSqr(pos)).thenComparingInt(poiRecord -> poiRecord.getPos().getY()));
         Iterators
                 .filter(InteresiumPoiManager.getInSquareIterator(poiType -> poiType == PoiType.NETHER_PORTAL, pos, isNether ? 16 : 128 , PoiManager.Occupancy.ANY, level.getPoiManager()), poiRecord -> level.getBlockState(poiRecord.getPos()).hasProperty(BlockStateProperties.HORIZONTAL_AXIS))
-                .forEachRemaining(poiRecord -> {
-                    poiRecordPriorityQueue.enqueue(poiRecord);
-                    if (poiRecordPriorityQueue.size() > 1) poiRecordPriorityQueue.dequeue();
-                });
+                .forEachRemaining(poiRecordPriorityQueue::enqueue);
 
         cir.setReturnValue(
                 Optional.ofNullable(poiRecordPriorityQueue.isEmpty() ? null : poiRecordPriorityQueue.dequeue()).map(poiRecord -> {
@@ -59,7 +47,5 @@ public abstract class PortalForcerMixin {
                     return BlockUtil.getLargestRectangleAround(poiRecordPos, blockState.getValue(BlockStateProperties.HORIZONTAL_AXIS), 21, Direction.Axis.Y, 21, blockPos -> level.getBlockState(blockPos) == blockState);
                 })
         );
-        long end = System.currentTimeMillis();
-        InteresiumMixinManager.LOGGER.error("findPortalAround time cost: " + (end - begin) + " ms");
     }
 }
