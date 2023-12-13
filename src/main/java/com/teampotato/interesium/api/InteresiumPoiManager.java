@@ -48,14 +48,13 @@ public final class InteresiumPoiManager {
     }
 
     public static @NotNull Set<BlockPos> limitedFindAllClosest(int limit, Predicate<PoiType> typePredicate, Predicate<BlockPos> posPredicate, BlockPos pos, int distance, PoiManager.Occupancy status, PoiManager poiManager) {
-        final PriorityQueue<BlockPos> priorityQueue = new PriorityQueue<>(Comparator.comparingDouble(blockPos -> blockPos.distSqr(pos)));
+        final PriorityQueue<BlockPos> blockPosPriorityQueue = new PriorityQueue<>(Comparator.comparingDouble(blockPos -> blockPos.distSqr(pos)));
         Iterator<BlockPos> all = findAllIterator(typePredicate, posPredicate, pos, distance, status, poiManager);
         while (all.hasNext()) {
-            BlockPos blockPos = all.next();
-            priorityQueue.offer(blockPos);
-            if (priorityQueue.size() > limit) priorityQueue.poll();
+            blockPosPriorityQueue.offer(all.next());
+            if (blockPosPriorityQueue.size() > limit) blockPosPriorityQueue.poll();
         }
-        return new ObjectLinkedOpenHashSet<>(priorityQueue);
+        return new ObjectLinkedOpenHashSet<>(blockPosPriorityQueue);
     }
 
     public static @NotNull Iterator<PoiRecord> getInSquareIterator(Predicate<PoiType> predicate, @NotNull BlockPos pos, int distance, PoiManager.Occupancy status, PoiManager poiManager) {
