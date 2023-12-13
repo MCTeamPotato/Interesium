@@ -4,6 +4,7 @@ import androsa.gaiadimension.registry.ModDimensions;
 import androsa.gaiadimension.world.GaiaTeleporter;
 import com.google.common.collect.Iterators;
 import com.teampotato.interesium.api.InteresiumPoiManager;
+import it.unimi.dsi.fastutil.objects.ObjectHeapPriorityQueue;
 import net.minecraft.BlockUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -24,7 +25,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Comparator;
 import java.util.Optional;
-import java.util.PriorityQueue;
 
 @Mixin(GaiaTeleporter.class)
 public abstract class GaiaTeleporterMixin {
@@ -36,15 +36,15 @@ public abstract class GaiaTeleporterMixin {
         int radius = 64;
         poiManager.ensureLoadedAndValid(this.world, pos, radius);
 
-        PriorityQueue<PoiRecord> poiRecordPriorityQueue = new PriorityQueue<>(Comparator.<PoiRecord>comparingDouble(poiRecord -> poiRecord.getPos().distSqr(pos)).thenComparingInt(poiRecord -> poiRecord.getPos().getY()));
+        ObjectHeapPriorityQueue<PoiRecord> poiRecordPriorityQueue = new ObjectHeapPriorityQueue<>(Comparator.<PoiRecord>comparingDouble(poiRecord -> poiRecord.getPos().distSqr(pos)).thenComparingInt(poiRecord -> poiRecord.getPos().getY()));
 
         Iterators.filter(
                 InteresiumPoiManager.getInSquareIterator(poiType -> poiType == ModDimensions.GAIA_PORTAL.get(), pos, radius, PoiManager.Occupancy.ANY, poiManager),
                 poiRecord -> this.world.getBlockState(poiRecord.getPos()).hasProperty(BlockStateProperties.HORIZONTAL_AXIS)
-        ).forEachRemaining(poiRecordPriorityQueue::offer);
+        ).forEachRemaining(poiRecordPriorityQueue::enqueue);
 
         cir.setReturnValue(
-                Optional.ofNullable(poiRecordPriorityQueue.poll()).map(poiRecord -> {
+                Optional.ofNullable(poiRecordPriorityQueue.isEmpty() ? null : poiRecordPriorityQueue.dequeue()).map(poiRecord -> {
                     BlockPos blockPos = poiRecord.getPos();
                     this.world.getChunkSource().distanceManager.addTicket(ChunkPos.asLong(blockPos.getX() >> 4, blockPos.getZ() >> 4), new Ticket<>(TicketType.PORTAL, 30, blockPos, false));
                     BlockState blockstate = this.world.getBlockState(blockPos);

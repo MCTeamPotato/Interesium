@@ -8,6 +8,7 @@ import de.teamlapen.vampirism.config.VampirismConfig;
 import de.teamlapen.vampirism.tileentity.TotemHelper;
 import de.teamlapen.vampirism.tileentity.TotemTileEntity;
 import de.teamlapen.vampirism.world.FactionPointOfInterestType;
+import it.unimi.dsi.fastutil.objects.ObjectHeapPriorityQueue;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -64,19 +65,18 @@ public abstract class TotemHelperMixin {
         ServerLevel level = player.getLevel();
         BlockPos playerPos = player.blockPosition();
         Map<BlockPos, BlockPos> totemPositionMap = totemPositions.computeIfAbsent(level.dimension(), (key) -> new HashMap<>());
-        PriorityQueue<PoiRecord> poiRecordPriorityQueue = new PriorityQueue<>(Comparator.comparingInt((point) -> (int)point.getPos().distSqr(playerPos)));
+        ObjectHeapPriorityQueue<PoiRecord> poiRecordPriorityQueue = new ObjectHeapPriorityQueue<>(Comparator.comparingInt((point) -> (int)point.getPos().distSqr(playerPos)));
         Iterator<PoiRecord> poiRecordIterator = InteresiumPoiManager.getInRangeIterator((point) -> true, playerPos, 25, PoiManager.Occupancy.ANY, level.getPoiManager());
         boolean hasEntryInPosMap = false;
         while (poiRecordIterator.hasNext()) {
             PoiRecord poiRecord = poiRecordIterator.next();
             if (!hasEntryInPosMap && totemPositionMap.containsKey(poiRecord.getPos())) hasEntryInPosMap = true;
-            poiRecordPriorityQueue.offer(poiRecord);
+            poiRecordPriorityQueue.enqueue(poiRecord);
         }
         if (!hasEntryInPosMap) {
             cir.setReturnValue(new TranslatableComponent("command.vampirism.test.village.no_village"));
         } else {
-            PoiRecord poiRecord = poiRecordPriorityQueue.poll();
-            if (poiRecord == null) throw new ConcurrentModificationException();
+            PoiRecord poiRecord = poiRecordPriorityQueue.dequeue();
             BlockEntity te = level.getBlockEntity(totemPositionMap.get(poiRecord.getPos()));
             if (!(te instanceof TotemTileEntity)) {
                 LOGGER.warn("TileEntity at {} is no TotemTileEntity", totemPositionMap.get(poiRecord.getPos()));

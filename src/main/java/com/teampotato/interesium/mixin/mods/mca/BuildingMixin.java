@@ -2,6 +2,7 @@ package com.teampotato.interesium.mixin.mods.mca;
 
 import com.teampotato.interesium.api.InteresiumPoiManager;
 import forge.net.mca.server.world.data.Building;
+import it.unimi.dsi.fastutil.objects.ObjectHeapPriorityQueue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
@@ -21,7 +22,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Optional;
-import java.util.PriorityQueue;
 
 @Mixin(value = Building.class, remap = false)
 public abstract class BuildingMixin {
@@ -34,7 +34,7 @@ public abstract class BuildingMixin {
     private void interesium$findClosestEmptyBed(@NotNull ServerLevel world, BlockPos pos, CallbackInfoReturnable<Optional<BlockPos>> cir) {
         Iterator<PoiRecord> poiRecordIterator = InteresiumPoiManager.getInSquareIterator(PoiType.HOME.getPredicate(), this.getCenter(), this.getPos0().distManhattan(this.getPos1()), PoiManager.Occupancy.ANY, world.getPoiManager());
 
-        PriorityQueue<BlockPos> blockPosPriorityQueue = new PriorityQueue<>(Comparator.comparingInt(a -> a.distManhattan(pos)));
+        ObjectHeapPriorityQueue<BlockPos> blockPosPriorityQueue = new ObjectHeapPriorityQueue<>(Comparator.comparingInt(a -> a.distManhattan(pos)));
 
         while (poiRecordIterator.hasNext()) {
             PoiRecord poiRecord = poiRecordIterator.next();
@@ -42,11 +42,11 @@ public abstract class BuildingMixin {
             BlockState blockState = world.getBlockState(poiRecordPos);
 
             if (!blockState.getValue(BedBlock.OCCUPIED) && blockState.is(BlockTags.BEDS) && this.containsPos(poiRecordPos)) {
-                blockPosPriorityQueue.offer(poiRecordPos);
+                blockPosPriorityQueue.enqueue(poiRecordPos);
             }
         }
 
-        cir.setReturnValue(Optional.ofNullable(blockPosPriorityQueue.poll()));
+        cir.setReturnValue(Optional.ofNullable(blockPosPriorityQueue.isEmpty() ? null : blockPosPriorityQueue.dequeue()));
     }
 
 }

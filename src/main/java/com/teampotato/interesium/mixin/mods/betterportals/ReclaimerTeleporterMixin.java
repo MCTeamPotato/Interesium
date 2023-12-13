@@ -8,6 +8,7 @@ import com.yungnickyoung.minecraft.betterportals.util.BlockUtil;
 import com.yungnickyoung.minecraft.betterportals.world.ReclaimerTeleporter;
 import com.yungnickyoung.minecraft.betterportals.world.variant.MonolithVariantSettings;
 import com.yungnickyoung.minecraft.betterportals.world.variant.MonolithVariants;
+import it.unimi.dsi.fastutil.objects.ObjectHeapPriorityQueue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -36,7 +37,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Comparator;
-import java.util.PriorityQueue;
 import java.util.function.Function;
 
 @Mixin(ReclaimerTeleporter.class)
@@ -55,13 +55,13 @@ public abstract class ReclaimerTeleporterMixin {
         PoiManager poiManager = targetWorld.getPoiManager();
         int blockSearchRange = 128;
         poiManager.ensureLoadedAndValid(targetWorld, targetPos, blockSearchRange);
-        PriorityQueue<BlockPos> poiRecordPriorityQueue = new PriorityQueue<>(Comparator.comparingDouble((pos) -> (double)this.xzDist(pos, targetPos)));
+        ObjectHeapPriorityQueue<BlockPos> poiRecordPriorityQueue = new ObjectHeapPriorityQueue<>(Comparator.comparingDouble((pos) -> (double)this.xzDist(pos, targetPos)));
         Iterators.filter(Iterators.transform(InteresiumPoiManager.getInSquareIterator((poiType) -> poiType == BPModPOIs.PORTAL_LAKE_POI, targetPos, blockSearchRange, PoiManager.Occupancy.ANY, poiManager), PoiRecord::getPos), (pos) -> {
             Fluid fluid = targetWorld.getBlockState(pos).getFluidState().getType();
             BlockState above = targetWorld.getBlockState(pos.above());
             return (fluid == BPModFluids.PORTAL_FLUID_FLOWING || fluid == BPModFluids.PORTAL_FLUID) && (above.getMaterial() == Material.AIR || above.getFluidState().getType() != Fluids.EMPTY);
-        }).forEachRemaining(poiRecordPriorityQueue::offer);
-        BlockPos blockPos = poiRecordPriorityQueue.poll();
+        }).forEachRemaining(poiRecordPriorityQueue::enqueue);
+        BlockPos blockPos = poiRecordPriorityQueue.isEmpty() ? null : poiRecordPriorityQueue.dequeue();
         if (blockPos != null) {
             targetWorld.getChunkSource().distanceManager.addTicket(ChunkPos.asLong(blockPos.getX() >> 4, blockPos.getZ() >> 4), new Ticket<>(TicketType.PORTAL, 30, blockPos, false));
             cir.setReturnValue(new PortalInfo(Vec3.atLowerCornerOf(blockPos), Vec3.ZERO, entity.yRot, entity.xRot));

@@ -3,6 +3,7 @@ package com.teampotato.interesium.mixin.mods.atum;
 import com.teammetallurgy.atum.init.AtumPointsOfInterest;
 import com.teammetallurgy.atum.world.teleporter.TeleporterAtum;
 import com.teampotato.interesium.api.InteresiumPoiManager;
+import it.unimi.dsi.fastutil.objects.ObjectHeapPriorityQueue;
 import net.minecraft.BlockUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -21,7 +22,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Comparator;
 import java.util.Optional;
-import java.util.PriorityQueue;
 
 @Mixin(value = TeleporterAtum.class, remap = false)
 public abstract class TeleporterAtumMixin {
@@ -32,13 +32,13 @@ public abstract class TeleporterAtumMixin {
         PoiManager poiManager = serverLevel.getPoiManager();
         poiManager.ensureLoadedAndValid(serverLevel, pos, interesium$radius);
 
-        PriorityQueue<PoiRecord> poiRecordPriorityQueue = new PriorityQueue<>(Comparator.<PoiRecord>comparingDouble(poiRecord -> poiRecord.getPos().distSqr(pos)).thenComparingInt(poiRecord -> poiRecord.getPos().getY()));
+        ObjectHeapPriorityQueue<PoiRecord> poiRecordPriorityQueue = new ObjectHeapPriorityQueue<>(Comparator.<PoiRecord>comparingDouble(poiRecord -> poiRecord.getPos().distSqr(pos)).thenComparingInt(poiRecord -> poiRecord.getPos().getY()));
 
         InteresiumPoiManager.getInSquareIterator(poiType -> poiType == AtumPointsOfInterest.PORTAL, pos, interesium$radius, PoiManager.Occupancy.ANY, poiManager)
-                .forEachRemaining(poiRecordPriorityQueue::offer);
+                .forEachRemaining(poiRecordPriorityQueue::enqueue);
 
         cir.setReturnValue(
-                Optional.ofNullable(poiRecordPriorityQueue.poll()).map(poiRecord -> {
+                Optional.ofNullable(poiRecordPriorityQueue.isEmpty() ? null : poiRecordPriorityQueue.dequeue()).map(poiRecord -> {
                     BlockPos poiRecordPos = poiRecord.getPos();
                     serverLevel.getChunkSource().distanceManager.addTicket(ChunkPos.asLong(poiRecordPos.getX() >> 4, poiRecordPos.getZ() >> 4), new Ticket<>(TicketType.PORTAL, 30, poiRecordPos, false));
                     BlockState blockState = serverLevel.getBlockState(poiRecordPos);
