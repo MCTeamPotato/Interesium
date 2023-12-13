@@ -5,7 +5,6 @@ import com.teampotato.interesium.api.extension.ExtendedPoiManager;
 import com.teampotato.interesium.api.extension.ExtendedPoiSection;
 import com.teampotato.interesium.util.IterationHelper;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectRBTreeSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
@@ -18,10 +17,7 @@ import net.minecraft.world.level.ChunkPos;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 
 public final class InteresiumPoiManager {
@@ -52,16 +48,14 @@ public final class InteresiumPoiManager {
     }
 
     public static @NotNull Set<BlockPos> limitedFindAllClosest(int limit, Predicate<PoiType> typePredicate, Predicate<BlockPos> posPredicate, BlockPos pos, int distance, PoiManager.Occupancy status, PoiManager poiManager) {
-        final Set<BlockPos> blockPosSortedSet = new ObjectRBTreeSet<>(Comparator.comparingDouble(blockPos -> blockPos.distSqr(pos)));
-        final Iterator<BlockPos> all = findAllIterator(typePredicate, posPredicate, pos, distance, status, poiManager);
-        while (all.hasNext()) blockPosSortedSet.add(all.next());
-        if (blockPosSortedSet.size() <= limit) return blockPosSortedSet;
-        final Set<BlockPos> limitedBlockPosSet = new ObjectLinkedOpenHashSet<>(limit);
-        for (BlockPos blockPos : blockPosSortedSet) {
-            limitedBlockPosSet.add(blockPos);
-            if (limitedBlockPosSet.size() == limit) break;
+        final PriorityQueue<BlockPos> priorityQueue = new PriorityQueue<>(Comparator.comparingDouble(blockPos -> blockPos.distSqr(pos)));
+        Iterator<BlockPos> all = findAllIterator(typePredicate, posPredicate, pos, distance, status, poiManager);
+        while (all.hasNext()) {
+            BlockPos blockPos = all.next();
+            priorityQueue.offer(blockPos);
+            if (priorityQueue.size() > limit) priorityQueue.poll();
         }
-        return limitedBlockPosSet;
+        return new ObjectLinkedOpenHashSet<>(priorityQueue);
     }
 
     public static @NotNull Iterator<PoiRecord> getInSquareIterator(Predicate<PoiType> predicate, @NotNull BlockPos pos, int distance, PoiManager.Occupancy status, PoiManager poiManager) {
