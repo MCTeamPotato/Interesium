@@ -1,7 +1,6 @@
 package com.teampotato.interesium.api;
 
 import com.google.common.collect.Iterators;
-import com.google.common.collect.UnmodifiableIterator;
 import com.teampotato.interesium.api.extension.ExtendedPoiManager;
 import com.teampotato.interesium.api.extension.ExtendedPoiSection;
 import com.teampotato.interesium.util.IterationHelper;
@@ -30,7 +29,7 @@ public final class InteresiumPoiManager {
     public static final Predicate<? super PoiRecord> ALWAYS_TRUE = poiRecord -> true;
 
     @Contract("_, _, _, _, _ -> new")
-    public static @NotNull UnmodifiableIterator<PoiRecord> getInRangeIterator(Predicate<PoiType> predicate, BlockPos pos, int distance, PoiManager.Occupancy status, PoiManager poiManager) {
+    public static @NotNull Iterator<PoiRecord> getInRangeIterator(Predicate<PoiType> predicate, BlockPos pos, int distance, PoiManager.Occupancy status, PoiManager poiManager) {
         return Iterators.filter(getInSquareIterator(predicate, pos, distance, status, poiManager), poiRecord -> poiRecord.getPos().distSqr(pos) <= ((double) distance * distance));
     }
 
@@ -53,7 +52,7 @@ public final class InteresiumPoiManager {
     }
 
     public static @NotNull Set<BlockPos> limitedFindAllClosest(int limit, Predicate<PoiType> typePredicate, Predicate<BlockPos> posPredicate, BlockPos pos, int distance, PoiManager.Occupancy status, PoiManager poiManager) {
-        final ObjectRBTreeSet<BlockPos> blockPosSortedSet = new ObjectRBTreeSet<>(Comparator.comparingDouble(blockPos -> blockPos.distSqr(pos)));
+        final Set<BlockPos> blockPosSortedSet = new ObjectRBTreeSet<>(Comparator.comparingDouble(blockPos -> blockPos.distSqr(pos)));
         final Iterator<BlockPos> all = findAllIterator(typePredicate, posPredicate, pos, distance, status, poiManager);
         while (all.hasNext()) blockPosSortedSet.add(all.next());
         if (blockPosSortedSet.size() <= limit) return blockPosSortedSet;

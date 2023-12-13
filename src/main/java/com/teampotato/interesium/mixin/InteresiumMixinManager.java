@@ -1,6 +1,8 @@
 package com.teampotato.interesium.mixin;
 
 import net.minecraftforge.fml.loading.FMLLoader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
@@ -10,6 +12,8 @@ import java.util.List;
 import java.util.Set;
 
 public class InteresiumMixinManager implements IMixinConfigPlugin {
+    public static final Logger LOGGER = LogManager.getLogger("Interesium");
+
     @Override
     public boolean shouldApplyMixin(String targetClassName, @NotNull String mixinClassName) {
         if (mixinClassName.contains(".atum.")) return isLoaded("atum");
