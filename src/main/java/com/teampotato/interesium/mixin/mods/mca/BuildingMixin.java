@@ -2,7 +2,6 @@ package com.teampotato.interesium.mixin.mods.mca;
 
 import com.teampotato.interesium.api.InteresiumPoiManager;
 import forge.net.mca.server.world.data.Building;
-import it.unimi.dsi.fastutil.objects.ObjectRBTreeSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
@@ -22,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Optional;
-import java.util.SortedSet;
+import java.util.PriorityQueue;
 
 @Mixin(value = Building.class, remap = false)
 public abstract class BuildingMixin {
@@ -34,13 +33,20 @@ public abstract class BuildingMixin {
     @Inject(method = "findClosestEmptyBed", at = @At("HEAD"), cancellable = true)
     private void interesium$findClosestEmptyBed(@NotNull ServerLevel world, BlockPos pos, CallbackInfoReturnable<Optional<BlockPos>> cir) {
         Iterator<PoiRecord> poiRecordIterator = InteresiumPoiManager.getInSquareIterator(PoiType.HOME.getPredicate(), this.getCenter(), this.getPos0().distManhattan(this.getPos1()), PoiManager.Occupancy.ANY, world.getPoiManager());
-        SortedSet<BlockPos> blockPosSortedSet = new ObjectRBTreeSet<>(Comparator.comparingInt((a) -> a.distManhattan(pos)));
+
+        PriorityQueue<BlockPos> blockPosPriorityQueue = new PriorityQueue<>(Comparator.comparingInt(a -> a.distManhattan(pos)));
+
         while (poiRecordIterator.hasNext()) {
-            BlockPos poiRecordPos = poiRecordIterator.next().getPos();
+            PoiRecord poiRecord = poiRecordIterator.next();
+            BlockPos poiRecordPos = poiRecord.getPos();
             BlockState blockState = world.getBlockState(poiRecordPos);
-            if (blockState.getValue(BedBlock.OCCUPIED) || !blockState.is(BlockTags.BEDS) || !this.containsPos(poiRecordPos)) continue;
-            blockPosSortedSet.add(poiRecordPos);
+
+            if (!blockState.getValue(BedBlock.OCCUPIED) && blockState.is(BlockTags.BEDS) && this.containsPos(poiRecordPos)) {
+                blockPosPriorityQueue.offer(poiRecordPos);
+            }
         }
-        cir.setReturnValue(Optional.ofNullable(blockPosSortedSet.isEmpty() ? null : blockPosSortedSet.first()));
+
+        cir.setReturnValue(Optional.ofNullable(blockPosPriorityQueue.poll()));
     }
+
 }

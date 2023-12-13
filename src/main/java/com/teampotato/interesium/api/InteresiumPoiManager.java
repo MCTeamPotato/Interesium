@@ -4,7 +4,6 @@ import com.google.common.collect.Iterators;
 import com.teampotato.interesium.api.extension.ExtendedPoiManager;
 import com.teampotato.interesium.api.extension.ExtendedPoiSection;
 import com.teampotato.interesium.util.IterationHelper;
-import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
@@ -47,14 +46,14 @@ public final class InteresiumPoiManager {
         };
     }
 
-    public static @NotNull Set<BlockPos> limitedFindAllClosest(int limit, Predicate<PoiType> typePredicate, Predicate<BlockPos> posPredicate, BlockPos pos, int distance, PoiManager.Occupancy status, PoiManager poiManager) {
+    public static @NotNull Queue<BlockPos> limitedFindAllClosest(int limit, Predicate<PoiType> typePredicate, Predicate<BlockPos> posPredicate, BlockPos pos, int distance, PoiManager.Occupancy status, PoiManager poiManager) {
         final PriorityQueue<BlockPos> blockPosPriorityQueue = new PriorityQueue<>(Comparator.comparingDouble(blockPos -> blockPos.distSqr(pos)));
         Iterator<BlockPos> all = findAllIterator(typePredicate, posPredicate, pos, distance, status, poiManager);
         while (all.hasNext()) {
             blockPosPriorityQueue.offer(all.next());
             if (blockPosPriorityQueue.size() > limit) blockPosPriorityQueue.poll();
         }
-        return new ObjectLinkedOpenHashSet<>(blockPosPriorityQueue);
+        return blockPosPriorityQueue;
     }
 
     public static @NotNull Iterator<PoiRecord> getInSquareIterator(Predicate<PoiType> predicate, @NotNull BlockPos pos, int distance, PoiManager.Occupancy status, PoiManager poiManager) {

@@ -2,6 +2,7 @@ package com.teampotato.interesium.mixin.vanilla;
 
 import com.teampotato.interesium.api.InteresiumPoiManager;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.network.protocol.game.DebugPackets;
@@ -21,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Optional;
-import java.util.Set;
+import java.util.Queue;
 import java.util.function.Predicate;
 
 @Mixin(AcquirePoi.class)
@@ -48,8 +49,8 @@ public abstract class AcquirePoiMixin {
             lv.markAttempt(gameTime);
             return true;
         };
-        Set<BlockPos> blockPosSet = InteresiumPoiManager.limitedFindAllClosest(5, this.poiType.getPredicate(), predicate, entity.blockPosition(), 48, PoiManager.Occupancy.HAS_SPACE, poiManager);
-        Path path = entity.getNavigation().createPath(blockPosSet, this.poiType.getValidRange());
+        Queue<BlockPos> blockPosSet = InteresiumPoiManager.limitedFindAllClosest(5, this.poiType.getPredicate(), predicate, entity.blockPosition(), 48, PoiManager.Occupancy.HAS_SPACE, poiManager);
+        Path path = entity.getNavigation().createPath(new ObjectLinkedOpenHashSet<>(blockPosSet), this.poiType.getValidRange());
         if (path != null && path.canReach()) {
             BlockPos targetPos = path.getTarget();
             poiManager.getType(targetPos).ifPresent(poiType -> {

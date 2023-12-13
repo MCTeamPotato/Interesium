@@ -2,8 +2,8 @@ package com.teampotato.interesium.mixin.mods.gaiadimension;
 
 import androsa.gaiadimension.registry.ModDimensions;
 import androsa.gaiadimension.world.GaiaTeleporter;
+import com.google.common.collect.Iterators;
 import com.teampotato.interesium.api.InteresiumPoiManager;
-import it.unimi.dsi.fastutil.objects.ObjectRBTreeSet;
 import net.minecraft.BlockUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -23,9 +23,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.Optional;
-import java.util.SortedSet;
+import java.util.PriorityQueue;
 
 @Mixin(GaiaTeleporter.class)
 public abstract class GaiaTeleporterMixin {
@@ -36,19 +35,21 @@ public abstract class GaiaTeleporterMixin {
         PoiManager poiManager = this.world.getPoiManager();
         int radius = 64;
         poiManager.ensureLoadedAndValid(this.world, pos, radius);
-        SortedSet<PoiRecord> poiRecordSortedSet = new ObjectRBTreeSet<>(Comparator.<PoiRecord>comparingDouble((poi) -> poi.getPos().distSqr(pos)).thenComparingInt((poi) -> poi.getPos().getY()));
-        Iterator<PoiRecord> poiRecordIterator = InteresiumPoiManager.getInSquareIterator((poiType) -> poiType == ModDimensions.GAIA_PORTAL.get(), pos, radius, PoiManager.Occupancy.ANY, poiManager);
-        while (poiRecordIterator.hasNext()) {
-            PoiRecord poiRecord = poiRecordIterator.next();
-            if (this.world.getBlockState(poiRecord.getPos()).hasProperty(BlockStateProperties.HORIZONTAL_AXIS)) {
-                poiRecordSortedSet.add(poiRecord);
-            }
-        }
-        cir.setReturnValue(Optional.ofNullable(poiRecordSortedSet.isEmpty() ? null : poiRecordSortedSet.first()).map(poiRecord -> {
-            BlockPos blockPos = poiRecord.getPos();
-            this.world.getChunkSource().distanceManager.addTicket(ChunkPos.asLong(blockPos.getX() >> 4, blockPos.getZ() >> 4), new Ticket<>(TicketType.PORTAL, 30, blockPos, false));
-            BlockState blockstate = this.world.getBlockState(blockPos);
-            return BlockUtil.getLargestRectangleAround(blockPos, blockstate.getValue(BlockStateProperties.HORIZONTAL_AXIS), 21, Direction.Axis.Y, 21, (posIn) -> this.world.getBlockState(posIn) == blockstate);
-        }));
+
+        PriorityQueue<PoiRecord> poiRecordPriorityQueue = new PriorityQueue<>(Comparator.<PoiRecord>comparingDouble(poiRecord -> poiRecord.getPos().distSqr(pos)).thenComparingInt(poiRecord -> poiRecord.getPos().getY()));
+
+        Iterators.filter(
+                InteresiumPoiManager.getInSquareIterator(poiType -> poiType == ModDimensions.GAIA_PORTAL.get(), pos, radius, PoiManager.Occupancy.ANY, poiManager),
+                poiRecord -> this.world.getBlockState(poiRecord.getPos()).hasProperty(BlockStateProperties.HORIZONTAL_AXIS)
+        ).forEachRemaining(poiRecordPriorityQueue::offer);
+
+        cir.setReturnValue(
+                Optional.ofNullable(poiRecordPriorityQueue.poll()).map(poiRecord -> {
+                    BlockPos blockPos = poiRecord.getPos();
+                    this.world.getChunkSource().distanceManager.addTicket(ChunkPos.asLong(blockPos.getX() >> 4, blockPos.getZ() >> 4), new Ticket<>(TicketType.PORTAL, 30, blockPos, false));
+                    BlockState blockstate = this.world.getBlockState(blockPos);
+                    return BlockUtil.getLargestRectangleAround(blockPos, blockstate.getValue(BlockStateProperties.HORIZONTAL_AXIS), 21, Direction.Axis.Y, 21, posIn -> this.world.getBlockState(posIn) == blockstate);
+                })
+        );
     }
 }
