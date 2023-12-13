@@ -4,7 +4,8 @@ import androsa.gaiadimension.registry.ModDimensions;
 import androsa.gaiadimension.world.GaiaTeleporter;
 import com.google.common.collect.Iterators;
 import com.teampotato.interesium.api.InteresiumPoiManager;
-import it.unimi.dsi.fastutil.objects.ObjectHeapPriorityQueue;
+import it.unimi.dsi.fastutil.PriorityQueue;
+import it.unimi.dsi.fastutil.objects.ObjectArrayPriorityQueue;
 import net.minecraft.BlockUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -36,7 +37,7 @@ public abstract class GaiaTeleporterMixin {
         int radius = 64;
         poiManager.ensureLoadedAndValid(this.world, pos, radius);
 
-        ObjectHeapPriorityQueue<PoiRecord> poiRecordPriorityQueue = new ObjectHeapPriorityQueue<>(Comparator.<PoiRecord>comparingDouble(poiRecord -> poiRecord.getPos().distSqr(pos)).thenComparingInt(poiRecord -> poiRecord.getPos().getY()));
+        PriorityQueue<PoiRecord> poiRecordPriorityQueue = new ObjectArrayPriorityQueue<>(Comparator.<PoiRecord>comparingDouble(poiRecord -> poiRecord.getPos().distSqr(pos)).thenComparingInt(poiRecord -> poiRecord.getPos().getY()));
 
         Iterators.filter(
                 InteresiumPoiManager.getInSquareIterator(poiType -> poiType == ModDimensions.GAIA_PORTAL.get(), pos, radius, PoiManager.Occupancy.ANY, poiManager),

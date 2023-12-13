@@ -3,7 +3,8 @@ package com.teampotato.interesium.mixin.mods.atum;
 import com.teammetallurgy.atum.init.AtumPointsOfInterest;
 import com.teammetallurgy.atum.world.teleporter.TeleporterAtum;
 import com.teampotato.interesium.api.InteresiumPoiManager;
-import it.unimi.dsi.fastutil.objects.ObjectHeapPriorityQueue;
+import it.unimi.dsi.fastutil.PriorityQueue;
+import it.unimi.dsi.fastutil.objects.ObjectArrayPriorityQueue;
 import net.minecraft.BlockUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -32,7 +33,7 @@ public abstract class TeleporterAtumMixin {
         PoiManager poiManager = serverLevel.getPoiManager();
         poiManager.ensureLoadedAndValid(serverLevel, pos, interesium$radius);
 
-        ObjectHeapPriorityQueue<PoiRecord> poiRecordPriorityQueue = new ObjectHeapPriorityQueue<>(Comparator.<PoiRecord>comparingDouble(poiRecord -> poiRecord.getPos().distSqr(pos)).thenComparingInt(poiRecord -> poiRecord.getPos().getY()));
+        PriorityQueue<PoiRecord> poiRecordPriorityQueue = new ObjectArrayPriorityQueue<>(Comparator.<PoiRecord>comparingDouble(poiRecord -> poiRecord.getPos().distSqr(pos)).thenComparingInt(poiRecord -> poiRecord.getPos().getY()));
 
         InteresiumPoiManager.getInSquareIterator(poiType -> poiType == AtumPointsOfInterest.PORTAL, pos, interesium$radius, PoiManager.Occupancy.ANY, poiManager)
                 .forEachRemaining(poiRecordPriorityQueue::enqueue);

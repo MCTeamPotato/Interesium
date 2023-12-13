@@ -2,7 +2,8 @@ package com.teampotato.interesium.mixin.mods.mca;
 
 import com.teampotato.interesium.api.InteresiumPoiManager;
 import forge.net.mca.server.world.data.Building;
-import it.unimi.dsi.fastutil.objects.ObjectHeapPriorityQueue;
+import it.unimi.dsi.fastutil.PriorityQueue;
+import it.unimi.dsi.fastutil.objects.ObjectArrayPriorityQueue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
@@ -34,7 +35,7 @@ public abstract class BuildingMixin {
     private void interesium$findClosestEmptyBed(@NotNull ServerLevel world, BlockPos pos, CallbackInfoReturnable<Optional<BlockPos>> cir) {
         Iterator<PoiRecord> poiRecordIterator = InteresiumPoiManager.getInSquareIterator(PoiType.HOME.getPredicate(), this.getCenter(), this.getPos0().distManhattan(this.getPos1()), PoiManager.Occupancy.ANY, world.getPoiManager());
 
-        ObjectHeapPriorityQueue<BlockPos> blockPosPriorityQueue = new ObjectHeapPriorityQueue<>(Comparator.comparingInt(a -> a.distManhattan(pos)));
+        PriorityQueue<BlockPos> blockPosPriorityQueue = new ObjectArrayPriorityQueue<>(Comparator.comparingInt(a -> a.distManhattan(pos)));
 
         while (poiRecordIterator.hasNext()) {
             PoiRecord poiRecord = poiRecordIterator.next();

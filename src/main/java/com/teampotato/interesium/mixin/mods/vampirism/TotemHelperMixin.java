@@ -8,7 +8,8 @@ import de.teamlapen.vampirism.config.VampirismConfig;
 import de.teamlapen.vampirism.tileentity.TotemHelper;
 import de.teamlapen.vampirism.tileentity.TotemTileEntity;
 import de.teamlapen.vampirism.world.FactionPointOfInterestType;
-import it.unimi.dsi.fastutil.objects.ObjectHeapPriorityQueue;
+import it.unimi.dsi.fastutil.PriorityQueue;
+import it.unimi.dsi.fastutil.objects.ObjectArrayPriorityQueue;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -65,7 +66,7 @@ public abstract class TotemHelperMixin {
         ServerLevel level = player.getLevel();
         BlockPos playerPos = player.blockPosition();
         Map<BlockPos, BlockPos> totemPositionMap = totemPositions.computeIfAbsent(level.dimension(), (key) -> new HashMap<>());
-        ObjectHeapPriorityQueue<PoiRecord> poiRecordPriorityQueue = new ObjectHeapPriorityQueue<>(Comparator.comparingInt((point) -> (int)point.getPos().distSqr(playerPos)));
+        PriorityQueue<PoiRecord> poiRecordPriorityQueue = new ObjectArrayPriorityQueue<>(Comparator.comparingInt((point) -> (int)point.getPos().distSqr(playerPos)));
         Iterator<PoiRecord> poiRecordIterator = InteresiumPoiManager.getInRangeIterator((point) -> true, playerPos, 25, PoiManager.Occupancy.ANY, level.getPoiManager());
         boolean hasEntryInPosMap = false;
         while (poiRecordIterator.hasNext()) {

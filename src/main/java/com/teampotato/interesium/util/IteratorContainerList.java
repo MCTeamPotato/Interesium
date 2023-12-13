@@ -11,7 +11,7 @@ import java.util.ListIterator;
 
 public class IteratorContainerList<U> implements List<U> {
     public @Nullable Iterator<U> iterator;
-    public final List<U> elements = new ReferenceArrayList<>();
+    public final ReferenceArrayList<U> elements = new ReferenceArrayList<>();
 
     public IteratorContainerList(@NotNull Iterator<U> iterator) {
         this.iterator = iterator;

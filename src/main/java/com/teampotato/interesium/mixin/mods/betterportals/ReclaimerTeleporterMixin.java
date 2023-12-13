@@ -8,7 +8,8 @@ import com.yungnickyoung.minecraft.betterportals.util.BlockUtil;
 import com.yungnickyoung.minecraft.betterportals.world.ReclaimerTeleporter;
 import com.yungnickyoung.minecraft.betterportals.world.variant.MonolithVariantSettings;
 import com.yungnickyoung.minecraft.betterportals.world.variant.MonolithVariants;
-import it.unimi.dsi.fastutil.objects.ObjectHeapPriorityQueue;
+import it.unimi.dsi.fastutil.PriorityQueue;
+import it.unimi.dsi.fastutil.objects.ObjectArrayPriorityQueue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -55,7 +56,7 @@ public abstract class ReclaimerTeleporterMixin {
         PoiManager poiManager = targetWorld.getPoiManager();
         int blockSearchRange = 128;
         poiManager.ensureLoadedAndValid(targetWorld, targetPos, blockSearchRange);
-        ObjectHeapPriorityQueue<BlockPos> poiRecordPriorityQueue = new ObjectHeapPriorityQueue<>(Comparator.comparingDouble((pos) -> (double)this.xzDist(pos, targetPos)));
+        PriorityQueue<BlockPos> poiRecordPriorityQueue = new ObjectArrayPriorityQueue<>(Comparator.comparingDouble((pos) -> (double)this.xzDist(pos, targetPos)));
         Iterators.filter(Iterators.transform(InteresiumPoiManager.getInSquareIterator((poiType) -> poiType == BPModPOIs.PORTAL_LAKE_POI, targetPos, blockSearchRange, PoiManager.Occupancy.ANY, poiManager), PoiRecord::getPos), (pos) -> {
             Fluid fluid = targetWorld.getBlockState(pos).getFluidState().getType();
             BlockState above = targetWorld.getBlockState(pos.above());
