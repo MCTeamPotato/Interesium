@@ -8,8 +8,6 @@ import com.yungnickyoung.minecraft.betterportals.util.BlockUtil;
 import com.yungnickyoung.minecraft.betterportals.world.ReclaimerTeleporter;
 import com.yungnickyoung.minecraft.betterportals.world.variant.MonolithVariantSettings;
 import com.yungnickyoung.minecraft.betterportals.world.variant.MonolithVariants;
-import it.unimi.dsi.fastutil.PriorityQueue;
-import it.unimi.dsi.fastutil.objects.ObjectArrayPriorityQueue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -38,6 +36,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.function.Function;
 
 @Mixin(ReclaimerTeleporter.class)
@@ -56,16 +55,26 @@ public abstract class ReclaimerTeleporterMixin {
         PoiManager poiManager = targetWorld.getPoiManager();
         int blockSearchRange = 128;
         poiManager.ensureLoadedAndValid(targetWorld, targetPos, blockSearchRange);
-        PriorityQueue<BlockPos> poiRecordPriorityQueue = new ObjectArrayPriorityQueue<>(Comparator.comparingDouble((pos) -> (double)this.xzDist(pos, targetPos)));
-        Iterators.filter(Iterators.transform(InteresiumPoiManager.getInSquareIterator((poiType) -> poiType == BPModPOIs.PORTAL_LAKE_POI, targetPos, blockSearchRange, PoiManager.Occupancy.ANY, poiManager), PoiRecord::getPos), (pos) -> {
+        BlockPos acceptedBlockPos = null;
+        Comparator<BlockPos> blockPosComparator = Comparator.comparingDouble((pos) -> (double)this.xzDist(pos, targetPos));
+        Iterator<BlockPos> blockPosIterator =  Iterators.filter(Iterators.transform(InteresiumPoiManager.getInSquareIterator((poiType) -> poiType == BPModPOIs.PORTAL_LAKE_POI, targetPos, blockSearchRange, PoiManager.Occupancy.ANY, poiManager), PoiRecord::getPos), (pos) -> {
             Fluid fluid = targetWorld.getBlockState(pos).getFluidState().getType();
             BlockState above = targetWorld.getBlockState(pos.above());
             return (fluid == BPModFluids.PORTAL_FLUID_FLOWING || fluid == BPModFluids.PORTAL_FLUID) && (above.getMaterial() == Material.AIR || above.getFluidState().getType() != Fluids.EMPTY);
-        }).forEachRemaining(poiRecordPriorityQueue::enqueue);
-        BlockPos blockPos = poiRecordPriorityQueue.isEmpty() ? null : poiRecordPriorityQueue.dequeue();
-        if (blockPos != null) {
-            targetWorld.getChunkSource().distanceManager.addTicket(ChunkPos.asLong(blockPos.getX() >> 4, blockPos.getZ() >> 4), new Ticket<>(TicketType.PORTAL, 30, blockPos, false));
-            cir.setReturnValue(new PortalInfo(Vec3.atLowerCornerOf(blockPos), Vec3.ZERO, entity.yRot, entity.xRot));
+        });
+        while (blockPosIterator.hasNext()) {
+            BlockPos blockPos = blockPosIterator.next();
+            if (acceptedBlockPos == null) {
+                acceptedBlockPos = blockPos;
+            } else {
+                if (blockPosComparator.compare(acceptedBlockPos, blockPos) < 0) {
+                    acceptedBlockPos = blockPos;
+                }
+            }
+        }
+        if (acceptedBlockPos != null) {
+            targetWorld.getChunkSource().distanceManager.addTicket(ChunkPos.asLong(acceptedBlockPos.getX() >> 4, acceptedBlockPos.getZ() >> 4), new Ticket<>(TicketType.PORTAL, 30, acceptedBlockPos, false));
+            cir.setReturnValue(new PortalInfo(Vec3.atLowerCornerOf(acceptedBlockPos), Vec3.ZERO, entity.yRot, entity.xRot));
         } else {
             String sourceDimension = entity.getCommandSenderWorld().dimension().location().toString();
             MonolithVariantSettings settings = MonolithVariants.get().getVariantForDimension(sourceDimension);

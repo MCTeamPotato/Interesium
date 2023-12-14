@@ -2,8 +2,6 @@ package com.teampotato.interesium.mixin.mods.mca;
 
 import com.teampotato.interesium.api.InteresiumPoiManager;
 import forge.net.mca.server.world.data.Building;
-import it.unimi.dsi.fastutil.PriorityQueue;
-import it.unimi.dsi.fastutil.objects.ObjectArrayPriorityQueue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
@@ -23,6 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Mixin(value = Building.class, remap = false)
 public abstract class BuildingMixin {
@@ -34,20 +33,25 @@ public abstract class BuildingMixin {
     @Inject(method = "findClosestEmptyBed", at = @At("HEAD"), cancellable = true)
     private void interesium$findClosestEmptyBed(@NotNull ServerLevel world, BlockPos pos, CallbackInfoReturnable<Optional<BlockPos>> cir) {
         Iterator<PoiRecord> poiRecordIterator = InteresiumPoiManager.getInSquareIterator(PoiType.HOME.getPredicate(), this.getCenter(), this.getPos0().distManhattan(this.getPos1()), PoiManager.Occupancy.ANY, world.getPoiManager());
-
-        PriorityQueue<BlockPos> blockPosPriorityQueue = new ObjectArrayPriorityQueue<>(Comparator.comparingInt(a -> a.distManhattan(pos)));
+        Comparator<BlockPos> blockPosComparator = Comparator.comparingInt(a -> a.distManhattan(pos));
+        AtomicReference<BlockPos> blockPos = new AtomicReference<>();
 
         while (poiRecordIterator.hasNext()) {
-            PoiRecord poiRecord = poiRecordIterator.next();
-            BlockPos poiRecordPos = poiRecord.getPos();
+            BlockPos poiRecordPos = poiRecordIterator.next().getPos();
             BlockState blockState = world.getBlockState(poiRecordPos);
 
             if (!blockState.getValue(BedBlock.OCCUPIED) && blockState.is(BlockTags.BEDS) && this.containsPos(poiRecordPos)) {
-                blockPosPriorityQueue.enqueue(poiRecordPos);
+                if (blockPos.get() == null) {
+                    blockPos.set(poiRecordPos);
+                } else {
+                    if (blockPosComparator.compare(blockPos.get(), poiRecordPos) < 0) {
+                        blockPos.set(poiRecordPos);
+                    }
+                }
             }
         }
 
-        cir.setReturnValue(Optional.ofNullable(blockPosPriorityQueue.isEmpty() ? null : blockPosPriorityQueue.dequeue()));
+        cir.setReturnValue(Optional.ofNullable(blockPos.get()));
     }
 
 }

@@ -10,6 +10,7 @@
   "mixins": [
     "mods.atum.ServalSpawnerMixin",
     "mods.atum.TeleporterAtumMixin",
+    "mods.atum.TeleporterAtumStartMixin",
     "mods.betterportals.ReclaimerTeleporterMixin",
     "mods.blue_skies.ArachnarchEntityScreechAttackGoalMixin",
     "mods.blue_skies.SkiesEventsMixin",

@@ -2,8 +2,6 @@ package com.teampotato.interesium.mixin.vanilla;
 
 import com.google.common.collect.Iterators;
 import com.teampotato.interesium.api.InteresiumPoiManager;
-import it.unimi.dsi.fastutil.PriorityQueue;
-import it.unimi.dsi.fastutil.objects.ObjectArrayPriorityQueue;
 import net.minecraft.BlockUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -25,6 +23,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Optional;
 
 @Mixin(PortalForcer.class)
@@ -34,13 +33,22 @@ public abstract class PortalForcerMixin {
 
     @Inject(method = "findPortalAround", at = @At("HEAD"), cancellable = true)
     private void interesium$findPortalAround(BlockPos pos, boolean isNether, CallbackInfoReturnable<Optional<BlockUtil.FoundRectangle>> cir) {
-        PriorityQueue<PoiRecord> poiRecordPriorityQueue = new ObjectArrayPriorityQueue<>(2, Comparator.<PoiRecord>comparingDouble(poiRecord -> poiRecord.getPos().distSqr(pos)).thenComparingInt(poiRecord -> poiRecord.getPos().getY()));
-        Iterators
-                .filter(InteresiumPoiManager.getInSquareIterator(poiType -> poiType == PoiType.NETHER_PORTAL, pos, isNether ? 16 : 128 , PoiManager.Occupancy.ANY, level.getPoiManager()), poiRecord -> level.getBlockState(poiRecord.getPos()).hasProperty(BlockStateProperties.HORIZONTAL_AXIS))
-                .forEachRemaining(poiRecordPriorityQueue::enqueue);
+        PoiRecord acceptedPoiRecord = null;
+        Comparator<PoiRecord> poiRecordComparator = Comparator.<PoiRecord>comparingDouble(poiRecord -> poiRecord.getPos().distSqr(pos)).thenComparingInt(poiRecord -> poiRecord.getPos().getY());
+        Iterator<PoiRecord> poiRecordIterator = Iterators.filter(InteresiumPoiManager.getInSquareIterator(poiType -> poiType == PoiType.NETHER_PORTAL, pos, isNether ? 16 : 128 , PoiManager.Occupancy.ANY, level.getPoiManager()), poiRecord -> level.getBlockState(poiRecord.getPos()).hasProperty(BlockStateProperties.HORIZONTAL_AXIS));
+        while (poiRecordIterator.hasNext()) {
+            PoiRecord poiRecord = poiRecordIterator.next();
+            if (acceptedPoiRecord == null) {
+                acceptedPoiRecord = poiRecord;
+            } else {
+                if (poiRecordComparator.compare(acceptedPoiRecord, poiRecord) < 0) {
+                    acceptedPoiRecord = poiRecord;
+                }
+            }
+        }
 
         cir.setReturnValue(
-                Optional.ofNullable(poiRecordPriorityQueue.isEmpty() ? null : poiRecordPriorityQueue.dequeue()).map(poiRecord -> {
+                Optional.ofNullable(acceptedPoiRecord).map(poiRecord -> {
                     BlockPos poiRecordPos = poiRecord.getPos();
                     level.getChunkSource().distanceManager.addTicket(ChunkPos.asLong(poiRecordPos.getX() >> 4, poiRecordPos.getZ() >> 4), new Ticket<>(TicketType.PORTAL, 30, poiRecordPos, false));
                     BlockState blockState = level.getBlockState(poiRecordPos);

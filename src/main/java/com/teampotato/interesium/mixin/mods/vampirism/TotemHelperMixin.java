@@ -8,8 +8,6 @@ import de.teamlapen.vampirism.config.VampirismConfig;
 import de.teamlapen.vampirism.tileentity.TotemHelper;
 import de.teamlapen.vampirism.tileentity.TotemTileEntity;
 import de.teamlapen.vampirism.world.FactionPointOfInterestType;
-import it.unimi.dsi.fastutil.PriorityQueue;
-import it.unimi.dsi.fastutil.objects.ObjectArrayPriorityQueue;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -66,21 +64,27 @@ public abstract class TotemHelperMixin {
         ServerLevel level = player.getLevel();
         BlockPos playerPos = player.blockPosition();
         Map<BlockPos, BlockPos> totemPositionMap = totemPositions.computeIfAbsent(level.dimension(), (key) -> new HashMap<>());
-        PriorityQueue<PoiRecord> poiRecordPriorityQueue = new ObjectArrayPriorityQueue<>(Comparator.comparingInt((point) -> (int)point.getPos().distSqr(playerPos)));
+        PoiRecord acceptedPoiRecord = null;
+        Comparator<PoiRecord> poiRecordComparator = Comparator.comparingInt((point) -> (int)point.getPos().distSqr(playerPos));
         Iterator<PoiRecord> poiRecordIterator = InteresiumPoiManager.getInRangeIterator((point) -> true, playerPos, 25, PoiManager.Occupancy.ANY, level.getPoiManager());
         boolean hasEntryInPosMap = false;
         while (poiRecordIterator.hasNext()) {
             PoiRecord poiRecord = poiRecordIterator.next();
             if (!hasEntryInPosMap && totemPositionMap.containsKey(poiRecord.getPos())) hasEntryInPosMap = true;
-            poiRecordPriorityQueue.enqueue(poiRecord);
+            if (acceptedPoiRecord == null) {
+                acceptedPoiRecord = poiRecord;
+            } else {
+                if (poiRecordComparator.compare(acceptedPoiRecord, poiRecord) < 0) {
+                    acceptedPoiRecord = poiRecord;
+                }
+            }
         }
         if (!hasEntryInPosMap) {
             cir.setReturnValue(new TranslatableComponent("command.vampirism.test.village.no_village"));
         } else {
-            PoiRecord poiRecord = poiRecordPriorityQueue.dequeue();
-            BlockEntity te = level.getBlockEntity(totemPositionMap.get(poiRecord.getPos()));
+            BlockEntity te = level.getBlockEntity(totemPositionMap.get(acceptedPoiRecord.getPos()));
             if (!(te instanceof TotemTileEntity)) {
-                LOGGER.warn("TileEntity at {} is no TotemTileEntity", totemPositionMap.get(poiRecord.getPos()));
+                LOGGER.warn("TileEntity at {} is no TotemTileEntity", totemPositionMap.get(acceptedPoiRecord.getPos()));
                 cir.setReturnValue(new TextComponent(""));
             } else {
                 ((TotemTileEntity) te).setForcedFaction(faction);
