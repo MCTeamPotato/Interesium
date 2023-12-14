@@ -33,14 +33,12 @@ public abstract class PortalForcerMixin {
 
     @Inject(method = "findPortalAround", at = @At("HEAD"), cancellable = true)
     private void interesium$findPortalAround(BlockPos pos, boolean isNether, CallbackInfoReturnable<Optional<BlockUtil.FoundRectangle>> cir) {
-        PoiRecord acceptedPoiRecord = null;
         Comparator<PoiRecord> poiRecordComparator = Comparator.<PoiRecord>comparingDouble(poiRecord -> poiRecord.getPos().distSqr(pos)).thenComparingInt(poiRecord -> poiRecord.getPos().getY());
         Iterator<PoiRecord> poiRecordIterator = Iterators.filter(InteresiumPoiManager.getInSquareIterator(poiType -> poiType == PoiType.NETHER_PORTAL, pos, isNether ? 16 : 128 , PoiManager.Occupancy.ANY, level.getPoiManager()), poiRecord -> level.getBlockState(poiRecord.getPos()).hasProperty(BlockStateProperties.HORIZONTAL_AXIS));
-        while (poiRecordIterator.hasNext()) {
-            PoiRecord poiRecord = poiRecordIterator.next();
-            if (acceptedPoiRecord == null) {
-                acceptedPoiRecord = poiRecord;
-            } else {
+        PoiRecord acceptedPoiRecord = poiRecordIterator.hasNext() ? poiRecordIterator.next() : null;
+        if (acceptedPoiRecord != null) {
+            while (poiRecordIterator.hasNext()) {
+                PoiRecord poiRecord = poiRecordIterator.next();
                 if (poiRecordComparator.compare(acceptedPoiRecord, poiRecord) < 0) {
                     acceptedPoiRecord = poiRecord;
                 }

@@ -30,7 +30,7 @@ public abstract class BeeLocateHiveGoalMixin {
     public void start() {
         this.field_20375.remainingCooldownBeforeLocatingNewHive = 200;
         BlockPos blockPosition = this.field_20375.blockPosition();
-        PriorityQueue<BlockPos> blockPosSortedSet = new PriorityQueue<>(Comparator.comparingDouble(blockPos -> blockPos.distSqr(blockPosition)));
+        PriorityQueue<BlockPos> blockPosPriorityQueue = new PriorityQueue<>(Comparator.comparingDouble(blockPos -> blockPos.distSqr(blockPosition)));
         Iterator<PoiRecord> poiRecordIterator = InteresiumPoiManager.getInRangeIterator(
                 Interesium.isResourcefulBeesLoaded ?
                         poiType -> poiType == PoiType.BEEHIVE || poiType == PoiType.BEE_NEST || poiType == ResourcefulBeesCompat.TIERED_BEEHIVE_POI :
@@ -38,16 +38,16 @@ public abstract class BeeLocateHiveGoalMixin {
                 , blockPosition, 20, PoiManager.Occupancy.ANY, ((ServerLevel) this.field_20375.level).getPoiManager());
         while (poiRecordIterator.hasNext()) {
             BlockPos poiRecordPos = poiRecordIterator.next().getPos();
-            if (this.field_20375.doesHiveHaveSpace(poiRecordPos)) blockPosSortedSet.offer(poiRecordPos);
+            if (this.field_20375.doesHiveHaveSpace(poiRecordPos)) blockPosPriorityQueue.offer(poiRecordPos);
         }
-        if (!blockPosSortedSet.isEmpty()) {
-            for (BlockPos blockpos : blockPosSortedSet) {
+        if (!blockPosPriorityQueue.isEmpty()) {
+            for (BlockPos blockpos : blockPosPriorityQueue) {
                 if (this.field_20375.goToHiveGoal.isTargetBlacklisted(blockpos)) continue;
                 this.field_20375.hivePos = blockpos;
                 return;
             }
             this.field_20375.goToHiveGoal.clearBlacklist();
-            this.field_20375.hivePos = blockPosSortedSet.poll();
+            this.field_20375.hivePos = blockPosPriorityQueue.poll();
         }
     }
 }

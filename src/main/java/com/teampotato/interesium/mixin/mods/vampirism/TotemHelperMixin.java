@@ -64,16 +64,14 @@ public abstract class TotemHelperMixin {
         ServerLevel level = player.getLevel();
         BlockPos playerPos = player.blockPosition();
         Map<BlockPos, BlockPos> totemPositionMap = totemPositions.computeIfAbsent(level.dimension(), (key) -> new HashMap<>());
-        PoiRecord acceptedPoiRecord = null;
         Comparator<PoiRecord> poiRecordComparator = Comparator.comparingInt((point) -> (int)point.getPos().distSqr(playerPos));
         Iterator<PoiRecord> poiRecordIterator = InteresiumPoiManager.getInRangeIterator((point) -> true, playerPos, 25, PoiManager.Occupancy.ANY, level.getPoiManager());
         boolean hasEntryInPosMap = false;
-        while (poiRecordIterator.hasNext()) {
-            PoiRecord poiRecord = poiRecordIterator.next();
-            if (!hasEntryInPosMap && totemPositionMap.containsKey(poiRecord.getPos())) hasEntryInPosMap = true;
-            if (acceptedPoiRecord == null) {
-                acceptedPoiRecord = poiRecord;
-            } else {
+        PoiRecord acceptedPoiRecord = poiRecordIterator.hasNext() ? poiRecordIterator.next() : null;
+        if (acceptedPoiRecord != null) {
+            while (poiRecordIterator.hasNext()) {
+                PoiRecord poiRecord = poiRecordIterator.next();
+                if (!hasEntryInPosMap && totemPositionMap.containsKey(poiRecord.getPos())) hasEntryInPosMap = true;
                 if (poiRecordComparator.compare(acceptedPoiRecord, poiRecord) < 0) {
                     acceptedPoiRecord = poiRecord;
                 }

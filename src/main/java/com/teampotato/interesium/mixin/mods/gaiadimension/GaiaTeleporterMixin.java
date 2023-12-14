@@ -35,18 +35,16 @@ public abstract class GaiaTeleporterMixin {
         PoiManager poiManager = this.world.getPoiManager();
         int radius = 64;
         poiManager.ensureLoadedAndValid(this.world, pos, radius);
-        PoiRecord acceptedPoiRecord = null;
         Comparator<PoiRecord> poiRecordComparator = Comparator.<PoiRecord>comparingDouble(poiRecord -> poiRecord.getPos().distSqr(pos)).thenComparingInt(poiRecord -> poiRecord.getPos().getY());
 
         Iterator<PoiRecord> poiRecordIterator = Iterators.filter(
                 InteresiumPoiManager.getInSquareIterator(poiType -> poiType == ModDimensions.GAIA_PORTAL.get(), pos, radius, PoiManager.Occupancy.ANY, poiManager),
                 poiRecord -> this.world.getBlockState(poiRecord.getPos()).hasProperty(BlockStateProperties.HORIZONTAL_AXIS)
         );
-        while (poiRecordIterator.hasNext()) {
-            PoiRecord poiRecord = poiRecordIterator.next();
-            if (acceptedPoiRecord == null) {
-                acceptedPoiRecord = poiRecord;
-            } else {
+        PoiRecord acceptedPoiRecord = poiRecordIterator.hasNext() ? poiRecordIterator.next() : null;
+        if (acceptedPoiRecord != null) {
+            while (poiRecordIterator.hasNext()) {
+                PoiRecord poiRecord = poiRecordIterator.next();
                 if (poiRecordComparator.compare(acceptedPoiRecord, poiRecord) < 0) {
                     acceptedPoiRecord = poiRecord;
                 }

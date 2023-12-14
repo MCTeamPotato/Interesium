@@ -55,18 +55,16 @@ public abstract class ReclaimerTeleporterMixin {
         PoiManager poiManager = targetWorld.getPoiManager();
         int blockSearchRange = 128;
         poiManager.ensureLoadedAndValid(targetWorld, targetPos, blockSearchRange);
-        BlockPos acceptedBlockPos = null;
         Comparator<BlockPos> blockPosComparator = Comparator.comparingDouble((pos) -> (double)this.xzDist(pos, targetPos));
         Iterator<BlockPos> blockPosIterator =  Iterators.filter(Iterators.transform(InteresiumPoiManager.getInSquareIterator((poiType) -> poiType == BPModPOIs.PORTAL_LAKE_POI, targetPos, blockSearchRange, PoiManager.Occupancy.ANY, poiManager), PoiRecord::getPos), (pos) -> {
             Fluid fluid = targetWorld.getBlockState(pos).getFluidState().getType();
             BlockState above = targetWorld.getBlockState(pos.above());
             return (fluid == BPModFluids.PORTAL_FLUID_FLOWING || fluid == BPModFluids.PORTAL_FLUID) && (above.getMaterial() == Material.AIR || above.getFluidState().getType() != Fluids.EMPTY);
         });
-        while (blockPosIterator.hasNext()) {
-            BlockPos blockPos = blockPosIterator.next();
-            if (acceptedBlockPos == null) {
-                acceptedBlockPos = blockPos;
-            } else {
+        BlockPos acceptedBlockPos = blockPosIterator.hasNext() ? blockPosIterator.next() : null;
+        if (acceptedBlockPos != null) {
+            while (blockPosIterator.hasNext()) {
+                BlockPos blockPos = blockPosIterator.next();
                 if (blockPosComparator.compare(acceptedBlockPos, blockPos) < 0) {
                     acceptedBlockPos = blockPos;
                 }
