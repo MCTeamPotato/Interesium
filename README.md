@@ -22,6 +22,8 @@ So what do you hope to get from Interesium?
 This mod may not improve TPS very much, but MSPT should be decreased when dimensional teleportation/certain entities goals process take place in your world.
 
 Benchmark has been roughly done about [nether portal teleportation](https://github.com/MCTeamPotato/Interesium/blob/1165/src/main/java/com/teampotato/interesium/mixin/vanilla/PortalForcerMixin.java), in which I've observed about 2 to 3 times findPortalAround execution speed increasing averagely.
+# Issue Report
+https://github.com/MCTeamPotato/Kasualix-Issue-Tracker
 # Mods Integration
 Interesium has internal integration with these mods and will optimize their POI usages automatically:
 - Atum
