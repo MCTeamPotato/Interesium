@@ -32,6 +32,7 @@
     "vanilla.PortalForcerMixin",
     "vanilla.RaidsMixin",
     "vanilla.SecondaryPoiSensorMixin",
+    "vanilla.SectionPosMixin",
     "vanilla.SetClosestHomeAsWalkTargetMixin"
   ],
   "overwrites": {
