@@ -6,6 +6,7 @@ import forge.net.mca.Config;
 import forge.net.mca.MCA;
 import forge.net.mca.client.model.CommonVillagerModel;
 import forge.net.mca.entity.VillagerLike;
+import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -21,7 +22,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import javax.annotation.Nullable;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Mixin(GameRenderer.class)
 public abstract class MixinGameRenderer {
@@ -31,12 +31,11 @@ public abstract class MixinGameRenderer {
     @Shadow public abstract void shutdownEffect();
 
     @Unique private Pair<String, ResourceLocation> mca$currentShader;
-    @Unique private static final ObjectOpenHashSet<Map.Entry<String, String>> ALLOWED_SHADERS = new ObjectOpenHashSet<>();
+    @Unique private static ObjectIterator<Map.Entry<String, String>> ALLOWED_SHADERS_ITERATOR;
 
     @Inject(method = "onResourceManagerReload", at = @At("RETURN"))
     private void initAllowedShaders(CallbackInfo ci) {
-        ALLOWED_SHADERS.clear();
-        ALLOWED_SHADERS.addAll(Config.getInstance().shaderLocationsMap.entrySet().stream().filter(entry -> MCA.areShadersAllowed(entry.getKey() + "_shader")).collect(Collectors.toSet()));
+        ALLOWED_SHADERS_ITERATOR = new ObjectOpenHashSet<>(Config.getInstance().shaderLocationsMap.entrySet().stream().filter(entry -> MCA.areShadersAllowed(entry.getKey() + "_shader")).iterator()).iterator();
     }
 
     @Inject(method = "tick", at = @At("TAIL"))
@@ -50,7 +49,8 @@ public abstract class MixinGameRenderer {
             if (this.mca$currentShader != null) {
                 this.loadEffect(this.mca$currentShader.getSecond());
             } else {
-                for (Map.Entry<String, String> entry : ALLOWED_SHADERS) {
+                while (ALLOWED_SHADERS_ITERATOR.hasNext()) {
+                    Map.Entry<String, String> entry = ALLOWED_SHADERS_ITERATOR.next();
                     if (!villagerLike.getTraits().hasTrait(entry.getKey())) continue;
                     ResourceLocation id = new ResourceLocation(entry.getValue());
                     this.mca$currentShader = new Pair<>(entry.getKey(), id);

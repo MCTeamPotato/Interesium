@@ -22,10 +22,7 @@ import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.storage.SectionStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -35,6 +32,7 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -75,7 +73,7 @@ public abstract class PoiManagerMixin extends SectionStorage<PoiSection> impleme
 
     @Inject(method = "findClosest", at = @At("HEAD"), cancellable = true)
     private void interesium$findClosest(Predicate<PoiType> typePredicate, BlockPos pos, int distance, PoiManager.Occupancy status, CallbackInfoReturnable<Optional<BlockPos>> cir) {
-        Iterator<PoiRecord> poiRecordIterator = InteresiumPoiManager.getInRangeIterator(typePredicate, pos, distance, status, (PoiManager) (Object) this);
+        final Iterator<PoiRecord> poiRecordIterator = InteresiumPoiManager.getInRangeIterator(typePredicate, pos, distance, status, (PoiManager) (Object) this);
 
         double minDistanceSquared = Double.MAX_VALUE;
         BlockPos closestPos = null;
@@ -99,10 +97,10 @@ public abstract class PoiManagerMixin extends SectionStorage<PoiSection> impleme
      */
     @Overwrite
     public Optional<BlockPos> take(Predicate<PoiType> typePredicate, Predicate<BlockPos> posPredicate, BlockPos pos, int distance) {
-        Iterator<PoiRecord> poiRecordIterator = InteresiumPoiManager.getInRangeIterator(typePredicate, pos, distance, PoiManager.Occupancy.HAS_SPACE, (PoiManager) (Object) this);
+        final Iterator<PoiRecord> poiRecordIterator = InteresiumPoiManager.getInRangeIterator(typePredicate, pos, distance, PoiManager.Occupancy.HAS_SPACE, (PoiManager) (Object) this);
         while (poiRecordIterator.hasNext()) {
-            PoiRecord poiRecord = poiRecordIterator.next();
-            BlockPos recoredPos = poiRecord.getPos();
+            final PoiRecord poiRecord = poiRecordIterator.next();
+            final BlockPos recoredPos = poiRecord.getPos();
             if (posPredicate.test(recoredPos)) {
                 poiRecord.acquireTicket();
                 return Optional.ofNullable(recoredPos);
@@ -117,16 +115,17 @@ public abstract class PoiManagerMixin extends SectionStorage<PoiSection> impleme
      */
     @Overwrite
     public Optional<BlockPos> getRandom(Predicate<PoiType> typePredicate, Predicate<BlockPos> posPredicate, PoiManager.Occupancy status, BlockPos pos, int distance, Random random) {
-        ReferenceArrayList<PoiRecord> poiRecords = new ReferenceArrayList<>(InteresiumPoiManager.getInRangeIterator(typePredicate, pos, distance, status, (PoiManager) (Object) this));
+        final ReferenceArrayList<PoiRecord> poiRecords = new ReferenceArrayList<>(InteresiumPoiManager.getInRangeIterator(typePredicate, pos, distance, status, (PoiManager) (Object) this));
+        final ThreadLocalRandom threadLocalRandom = ThreadLocalRandom.current();
         for (PoiRecord poiRecord : poiRecords) {
-            BlockPos blockPos = poiRecord.getPos();
+            final BlockPos blockPos = poiRecord.getPos();
             if (posPredicate.test(blockPos)) {
-                if (random.nextBoolean()) return Optional.ofNullable(blockPos);
+                if (threadLocalRandom.nextBoolean()) return Optional.ofNullable(blockPos);
             } else {
                 poiRecords.remove(poiRecord);
             }
         }
-        return poiRecords.isEmpty() ? Optional.empty() : Optional.ofNullable(poiRecords.get(random.nextInt(poiRecords.size())).getPos());
+        return poiRecords.isEmpty() ? Optional.empty() : Optional.ofNullable(poiRecords.get(threadLocalRandom.nextInt(poiRecords.size())).getPos());
     }
 
     /**
@@ -136,7 +135,7 @@ public abstract class PoiManagerMixin extends SectionStorage<PoiSection> impleme
     @SuppressWarnings("OptionalAssignedToNull")
     @Overwrite
     private boolean isVillageCenter(long l) {
-        Optional<PoiSection> poiSectionOptional = this.get(l);
+        final Optional<PoiSection> poiSectionOptional = this.get(l);
         if (poiSectionOptional == null) return false;
         return poiSectionOptional.map(poiSection -> ((ExtendedPoiSection)poiSection).interesium$getRecordsIterator(PoiType.ALL, PoiManager.Occupancy.IS_OCCUPIED).hasNext()).orElse(false);
     }
@@ -144,9 +143,9 @@ public abstract class PoiManagerMixin extends SectionStorage<PoiSection> impleme
     @Inject(method = "updateFromSection", at = @At("HEAD"), cancellable = true)
     private void interesium$updateFromSection(LevelChunkSection section, @NotNull SectionPos sectionPos, BiConsumer<BlockPos, PoiType> posToTypeConsumer, CallbackInfo ci) {
         ci.cancel();
-        int x = sectionPos.x() << 4;
-        int y = sectionPos.y() << 4;
-        int z = sectionPos.z() << 4;
+        final int x = sectionPos.x() << 4;
+        final int y = sectionPos.y() << 4;
+        final int z = sectionPos.z() << 4;
         for (BlockPos blockPos : BlockPos.betweenClosed(x, y, z, x + 15, y + 15, z + 15)) {
             PoiType.forState(section.getBlockState(SectionPos.sectionRelative(blockPos.getX()), SectionPos.sectionRelative(blockPos.getY()), SectionPos.sectionRelative(blockPos.getZ()))).ifPresent(poiType -> posToTypeConsumer.accept(blockPos, poiType));
         }
@@ -155,15 +154,15 @@ public abstract class PoiManagerMixin extends SectionStorage<PoiSection> impleme
     @Inject(method = "ensureLoadedAndValid", at = @At("HEAD"), cancellable = true)
     private void interesium$ensureLoadedAndValid(LevelReader levelReader, @NotNull BlockPos pos, int coordinateOffset, CallbackInfo ci) {
         ci.cancel();
-        int x = pos.getX() >> 4;
-        int z = pos.getZ() >> 4;
-        int radius = Math.floorDiv(coordinateOffset, 16);
-        Iterator<SectionPos> sectionPosIterator = IterationHelper.betweenClosedIterator(x - radius, 0, z - radius, x + radius, 15, z + radius);
+        final int x = pos.getX() >> 4;
+        final int z = pos.getZ() >> 4;
+        final int radius = Math.floorDiv(coordinateOffset, 16);
+        final Iterator<SectionPos> sectionPosIterator = IterationHelper.betweenClosedIterator(x - radius, 0, z - radius, x + radius, 15, z + radius);
         while (sectionPosIterator.hasNext()) {
-            SectionPos sectionPos = sectionPosIterator.next();
+            final SectionPos sectionPos = sectionPosIterator.next();
             if (!this.getOrLoad(sectionPos.asLong()).map(PoiSection::isValid).orElse(false)) {
-                int sectionPosX = sectionPos.x();
-                int sectionPosZ = sectionPos.z();
+                final int sectionPosX = sectionPos.x();
+                final int sectionPosZ = sectionPos.z();
                 if (this.loadedChunks.add(ChunkPos.asLong(sectionPosX, sectionPosZ))) levelReader.getChunk(sectionPosX, sectionPosZ, ChunkStatus.EMPTY);
             }
         }
