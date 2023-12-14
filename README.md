@@ -10,7 +10,7 @@ However, Mojang's POI manager is using [Stream API](https://www.baeldung.com/jav
 So, Interesium goes back to basics and rewrites [a new POI manager](https://github.com/MCTeamPotato/Interesium/blob/1165/src/main/java/com/teampotato/interesium/api/InteresiumPoiManager.java) using the traditional [Iterator](https://www.baeldung.com/java-iterator), which reduces the overhead effectively.
 
 # RoadRunner
-So why don't you use RoadRunner? Doesn't it 
+So why don't you use RoadRunner? Doesn't it also contain POI optimization?
 
 In March 2023, I had a 1.16.5 Forge Minecraft server with RoadRunner installed. But during 2 months long gameplay, it caused countless tiny compatibility issues with mods which is quite annoying, so I didn't want to use it.
 
