@@ -21,7 +21,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import javax.annotation.Nullable;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Mixin(GameRenderer.class)
@@ -32,7 +31,7 @@ public abstract class MixinGameRenderer {
     @Shadow public abstract void shutdownEffect();
 
     @Unique private Pair<String, ResourceLocation> mca$currentShader;
-    @Unique private static final Set<Map.Entry<String, String>> ALLOWED_SHADERS = new ObjectOpenHashSet<>();
+    @Unique private static final ObjectOpenHashSet<Map.Entry<String, String>> ALLOWED_SHADERS = new ObjectOpenHashSet<>();
 
     @Inject(method = "onResourceManagerReload", at = @At("RETURN"))
     private void initAllowedShaders(CallbackInfo ci) {
