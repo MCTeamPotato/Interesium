@@ -37,5 +37,9 @@
   ],
   "overwrites": {
     "conformVisibility": true
-  }
+  },
+  "client": [
+    "mods.mca.MCAMixin",
+    "mods.mca.MixinGameRenderer"
+  ]
 }

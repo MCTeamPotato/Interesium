@@ -9,10 +9,7 @@ import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiRecord;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.animal.Bee;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.*;
 
 import java.util.Comparator;
 import java.util.Iterator;
@@ -32,7 +29,7 @@ public abstract class BeeLocateHiveGoalMixin {
         BlockPos blockPosition = this.field_20375.blockPosition();
         PriorityQueue<BlockPos> blockPosPriorityQueue = new PriorityQueue<>(Comparator.comparingDouble(blockPos -> blockPos.distSqr(blockPosition)));
         Iterator<PoiRecord> poiRecordIterator = InteresiumPoiManager.getInRangeIterator(
-                Interesium.isResourcefulBeesLoaded ?
+                Interesium.IS_RESOURCEFUL_BEES_LOADED ?
                         poiType -> poiType == PoiType.BEEHIVE || poiType == PoiType.BEE_NEST || poiType == ResourcefulBeesCompat.TIERED_BEEHIVE_POI :
                         poiType -> poiType == PoiType.BEEHIVE || poiType == PoiType.BEE_NEST
                 , blockPosition, 20, PoiManager.Occupancy.ANY, ((ServerLevel) this.field_20375.level).getPoiManager());

@@ -35,16 +35,19 @@ public abstract class SetClosestHomeAsWalkTargetMixin {
     @Shadow @Final private float speedModifier;
 
     @Unique
-    private final Supplier<Predicate<BlockPos>> interesium$startingTest = () -> (Predicate<BlockPos>) pos -> {
-        long l = pos.asLong();
-        if (this.batchCache.containsKey(l)) {
-            return false;
+    private final Supplier<Predicate<BlockPos>> interesium$startingTest = () -> new Predicate<BlockPos>() {
+        @Override
+        public boolean test(BlockPos pos) {
+            long l = pos.asLong();
+            if (batchCache.containsKey(l)) {
+                return false;
+            }
+            if (++triedCount >= 5) {
+                return false;
+            }
+            batchCache.put(l, lastUpdate + 40L);
+            return true;
         }
-        if (++this.triedCount >= 5) {
-            return false;
-        }
-        this.batchCache.put(l, this.lastUpdate + 40L);
-        return true;
     };
 
     @Inject(method = "start", at = @At("HEAD"), cancellable = true)

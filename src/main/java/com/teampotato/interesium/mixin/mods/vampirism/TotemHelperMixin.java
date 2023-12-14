@@ -83,13 +83,15 @@ public abstract class TotemHelperMixin {
             BlockEntity te = level.getBlockEntity(totemPositionMap.get(acceptedPoiRecord.getPos()));
             if (!(te instanceof TotemTileEntity)) {
                 LOGGER.warn("TileEntity at {} is no TotemTileEntity", totemPositionMap.get(acceptedPoiRecord.getPos()));
-                cir.setReturnValue(new TextComponent(""));
+                cir.setReturnValue(EMPTY_COMPONENT);
             } else {
                 ((TotemTileEntity) te).setForcedFaction(faction);
                 cir.setReturnValue(new TranslatableComponent("command.vampirism.test.village.success", faction == null ? "none" : faction.getName()));
             }
         }
     }
+
+    @Unique private static final TextComponent EMPTY_COMPONENT = new TextComponent("");
 
     @Inject(method = "getVillagePointsOfInterest", at = @At("HEAD"), cancellable = true)
     private static void interesium$getVillagePointsOfInterest(ServerLevel world, BlockPos pos, CallbackInfoReturnable<Set<PoiRecord>> cir) {
