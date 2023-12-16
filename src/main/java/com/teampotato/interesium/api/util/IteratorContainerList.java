@@ -4,8 +4,10 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
-import java.util.stream.Stream;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 public class IteratorContainerList<U> implements List<U> {
     public @Nullable Iterator<U> iterator;
@@ -80,7 +82,7 @@ public class IteratorContainerList<U> implements List<U> {
     }
 
     /**
-     * If you still have a conscience, refrain from using the method.
+     * If you still have a conscience, refrain from using the method ;)
      **/
     @Override
     public int size() {
@@ -103,8 +105,8 @@ public class IteratorContainerList<U> implements List<U> {
     @NotNull
     @Override
     public Object @NotNull [] toArray() {
-        this.generateListFromIterator();
-        return Stream.concat(Arrays.stream(this.elements.toArray()), Arrays.stream(this.iteratorList.toArray())).toArray();
+        this.concatList();
+        return this.concatedList.toArray();
     }
 
     /**
@@ -113,8 +115,8 @@ public class IteratorContainerList<U> implements List<U> {
     @NotNull
     @Override
     public <T> T @NotNull [] toArray(T @NotNull [] a) {
-        this.generateListFromIterator();
-        return Stream.concat(Arrays.stream(this.elements.toArray()), Arrays.stream(this.iteratorList.toArray())).toArray(value -> a);
+        this.concatList();
+        return this.concatedList.toArray(a);
     }
 
     /**
