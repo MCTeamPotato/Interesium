@@ -2,7 +2,7 @@ package com.teampotato.interesium.mixin.vanilla;
 
 import com.teampotato.interesium.Interesium;
 import com.teampotato.interesium.api.InteresiumPoiManager;
-import com.teampotato.interesium.compat.ResourcefulBeesCompat;
+import com.teampotato.interesium.mods.ResourcefulBeesCompat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;

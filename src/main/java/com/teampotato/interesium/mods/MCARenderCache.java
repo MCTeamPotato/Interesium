@@ -1,4 +1,4 @@
-package com.teampotato.interesium.compat;
+package com.teampotato.interesium.mods;
 
 public class MCARenderCache {
     public static Boolean isPlayerRendererAllowed = null;

@@ -1,4 +1,4 @@
-package com.teampotato.interesium.compat;
+package com.teampotato.interesium.mods;
 
 import com.resourcefulbees.resourcefulbees.registry.ModPOIs;
 import net.minecraft.world.entity.ai.village.poi.PoiType;

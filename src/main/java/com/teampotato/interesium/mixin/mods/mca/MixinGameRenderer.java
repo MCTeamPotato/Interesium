@@ -1,7 +1,7 @@
 package com.teampotato.interesium.mixin.mods.mca;
 
 import com.mojang.datafixers.util.Pair;
-import com.teampotato.interesium.compat.MCARenderCache;
+import com.teampotato.interesium.mods.MCARenderCache;
 import forge.net.mca.Config;
 import forge.net.mca.MCA;
 import forge.net.mca.client.model.CommonVillagerModel;

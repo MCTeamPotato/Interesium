@@ -1,6 +1,6 @@
 package com.teampotato.interesium.mixin.mods.mca;
 
-import com.teampotato.interesium.compat.MCARenderCache;
+import com.teampotato.interesium.mods.MCARenderCache;
 import forge.net.mca.Config;
 import forge.net.mca.MCA;
 import org.spongepowered.asm.mixin.Mixin;
