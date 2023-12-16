@@ -95,8 +95,8 @@ public class IteratorContainerList<U> implements List<U> {
      **/
     @Override
     public boolean contains(Object o) {
-        this.generateListFromIterator();
-        return this.elements.contains(o) || this.iteratorList.contains(o);
+        this.concatList();
+        return this.concatedList.contains(o);
     }
 
     /**
@@ -124,8 +124,9 @@ public class IteratorContainerList<U> implements List<U> {
      **/
     @Override
     public boolean add(U u) {
-        this.isListConcated = false;
-        return this.elements.add(u);
+        boolean added = this.elements.add(u);
+        if (added) this.concatedList.add(u);
+        return added;
     }
 
     /**
@@ -135,12 +136,8 @@ public class IteratorContainerList<U> implements List<U> {
     public boolean remove(Object o) {
         this.generateListFromIterator();
         boolean isRemovingFromIterator = this.iteratorList.remove(o);
-        if (isRemovingFromIterator) {
-            this.iterator = this.iteratorList.iterator();
-            this.isIteratorListGenerated = false;
-            this.concatedList.clear();
-            this.isListConcated = false;
-        }
+        if (isRemovingFromIterator) this.iterator = this.iteratorList.iterator();
+        if (this.isListConcated) this.concatedList.remove(o);
         return this.elements.remove(o) || isRemovingFromIterator;
     }
 
@@ -149,8 +146,8 @@ public class IteratorContainerList<U> implements List<U> {
      **/
     @Override
     public boolean containsAll(@NotNull Collection<?> c) {
-        this.generateListFromIterator();
-        return this.iteratorList.containsAll(c) || this.elements.containsAll(c);
+        this.concatList();
+        return this.concatedList.containsAll(c);
     }
 
     /**
@@ -158,7 +155,9 @@ public class IteratorContainerList<U> implements List<U> {
      **/
     @Override
     public boolean addAll(@NotNull Collection<? extends U> c) {
-        return this.elements.addAll(c);
+        boolean added = this.elements.addAll(c);
+        if (added) this.concatedList.addAll(c);
+        return added;
     }
 
     /**
@@ -168,12 +167,8 @@ public class IteratorContainerList<U> implements List<U> {
     public boolean removeAll(@NotNull Collection<?> c) {
         this.generateListFromIterator();
         boolean isRemovingFromIterator = this.iteratorList.removeAll(c);
-        if (isRemovingFromIterator) {
-            this.iterator = this.iteratorList.iterator();
-            this.isIteratorListGenerated = false;
-            this.concatedList.clear();
-            this.isListConcated = false;
-        }
+        if (isRemovingFromIterator) this.iterator = this.iteratorList.iterator();
+        if (this.isListConcated) this.concatedList.removeAll(c);
         return this.elements.removeAll(c) || isRemovingFromIterator;
     }
 
@@ -184,12 +179,8 @@ public class IteratorContainerList<U> implements List<U> {
     public boolean retainAll(@NotNull Collection<?> c) {
         this.generateListFromIterator();
         boolean isRetainingFromIterator = this.iteratorList.retainAll(c);
-        if (isRetainingFromIterator) {
-            this.iterator = this.iteratorList.iterator();
-            this.isIteratorListGenerated = false;
-            this.concatedList.clear();
-            this.isListConcated = false;
-        }
+        if (isRetainingFromIterator) this.iterator = this.iteratorList.iterator();
+        if (this.isListConcated) this.concatedList.retainAll(c);
         return this.elements.retainAll(c) || isRetainingFromIterator;
     }
 
