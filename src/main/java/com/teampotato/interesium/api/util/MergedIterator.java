@@ -1,4 +1,4 @@
-package com.teampotato.interesium.util;
+package com.teampotato.interesium.api.util;
 
 import java.util.Iterator;
 

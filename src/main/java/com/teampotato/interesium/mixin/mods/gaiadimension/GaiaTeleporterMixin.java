@@ -45,9 +45,7 @@ public abstract class GaiaTeleporterMixin {
         if (acceptedPoiRecord != null) {
             while (poiRecordIterator.hasNext()) {
                 PoiRecord poiRecord = poiRecordIterator.next();
-                if (poiRecordComparator.compare(acceptedPoiRecord, poiRecord) < 0) {
-                    acceptedPoiRecord = poiRecord;
-                }
+                if (poiRecordComparator.compare(acceptedPoiRecord, poiRecord) < 0) acceptedPoiRecord = poiRecord;
             }
         }
 

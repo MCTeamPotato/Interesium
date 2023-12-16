@@ -1,4 +1,4 @@
-package com.teampotato.interesium.util;
+package com.teampotato.interesium.api.util;
 
 import com.teampotato.interesium.api.extension.ExtendedSectionPos;
 import net.minecraft.core.Cursor3D;

@@ -5,7 +5,7 @@ import com.mojang.serialization.Codec;
 import com.teampotato.interesium.api.InteresiumPoiManager;
 import com.teampotato.interesium.api.extension.ExtendedPoiManager;
 import com.teampotato.interesium.api.extension.ExtendedPoiSection;
-import com.teampotato.interesium.util.IterationHelper;
+import com.teampotato.interesium.api.util.IterationHelper;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.core.BlockPos;

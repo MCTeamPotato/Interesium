@@ -24,7 +24,6 @@ public abstract class ArcaneCrystalObeliskTileEntityMixin extends BlockEntity {
     }
 
     @SuppressWarnings("DataFlowIssue")
-
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;getPoiManager()Lnet/minecraft/world/entity/ai/village/poi/PoiManager;", shift = At.Shift.BEFORE), cancellable = true)
     private void interesium$tick(CallbackInfo ci) {
         ci.cancel();

@@ -3,7 +3,7 @@ package com.teampotato.interesium.api;
 import com.google.common.collect.Iterators;
 import com.teampotato.interesium.api.extension.ExtendedPoiManager;
 import com.teampotato.interesium.api.extension.ExtendedPoiSection;
-import com.teampotato.interesium.util.IterationHelper;
+import com.teampotato.interesium.api.util.IterationHelper;
 import it.unimi.dsi.fastutil.objects.ObjectRBTreeSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
