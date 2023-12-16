@@ -82,7 +82,7 @@ public class IteratorContainerList<U> implements List<U> {
     }
 
     /**
-     * If you still have a conscience, refrain from using the method ;)
+     * If you still have a conscience, refrain from using the method.
      **/
     @Override
     public int size() {
