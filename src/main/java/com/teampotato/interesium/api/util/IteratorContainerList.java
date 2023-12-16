@@ -15,20 +15,59 @@ public class IteratorContainerList<U> implements List<U> {
 
     public final ObjectArrayList<U> concatedList = new ObjectArrayList<>();
 
+    private volatile boolean isIteratorListGenerated;
+    private volatile boolean isListConcated;
+
     public IteratorContainerList(@NotNull Iterator<U> iterator) {
         this.iterator = iterator;
     }
 
-    private volatile boolean isIteratorListGenerated;
+    /**
+     * Allowed method, thank you ;)
+     **/
+    @Override
+    public boolean isEmpty() {
+        return this.iterator == null && this.elements.isEmpty();
+    }
 
+    /**
+     * Allowed method, thank you ;)
+     **/
+    @NotNull
+    @Override
+    public Iterator<U> iterator() {
+        return this.iterator == null ? this.elements.iterator() : new MergedIterator<>(this.elements.iterator(), this.iterator);
+    }
+
+    /**
+     * Allowed method, thank you ;)
+     **/
+    @Override
+    public void clear() {
+        this.iterator = null;
+        this.elements.clear();
+        this.concatedList.clear();
+        this.isListConcated = false;
+        this.iteratorList.clear();
+        this.isIteratorListGenerated = false;
+    }
+
+    /**
+     * If you still have a conscience, refrain from using the method that calls this.
+     **/
     private void concatList() {
-        if (this.concatedList.isEmpty()) {
+        if (!this.isListConcated) {
+            this.concatedList.clear();
             this.generateListFromIterator();
             this.elements.iterator().forEachRemaining(this.concatedList::add);
             this.iteratorList.iterator().forEachRemaining(this.concatedList::add);
+            this.isListConcated = true;
         }
     }
 
+    /**
+     * If you still have a conscience, refrain from using the method that calls this.
+     **/
     private void generateListFromIterator() {
         if (this.isIteratorListGenerated) return;
         this.iteratorList.clear();
@@ -40,29 +79,27 @@ public class IteratorContainerList<U> implements List<U> {
         this.isIteratorListGenerated = true;
     }
 
+    /**
+     * If you still have a conscience, refrain from using the method.
+     **/
     @Override
     public int size() {
         this.generateListFromIterator();
         return this.iteratorList.size() + this.elements.size();
     }
 
-    @Override
-    public boolean isEmpty() {
-        return this.iterator == null && this.elements.isEmpty();
-    }
-
+    /**
+     * If you still have a conscience, refrain from using the method.
+     **/
     @Override
     public boolean contains(Object o) {
         this.generateListFromIterator();
         return this.elements.contains(o) || this.iteratorList.contains(o);
     }
 
-    @NotNull
-    @Override
-    public Iterator<U> iterator() {
-        return this.iterator == null ? this.elements.iterator() : new MergedIterator<>(this.elements.iterator(), this.iterator);
-    }
-
+    /**
+     * If you still have a conscience, refrain from using the method.
+     **/
     @NotNull
     @Override
     public Object @NotNull [] toArray() {
@@ -70,6 +107,9 @@ public class IteratorContainerList<U> implements List<U> {
         return Stream.concat(Arrays.stream(this.elements.toArray()), Arrays.stream(this.iteratorList.toArray())).toArray();
     }
 
+    /**
+     * If you still have a conscience, refrain from using the method.
+     **/
     @NotNull
     @Override
     public <T> T @NotNull [] toArray(T @NotNull [] a) {
@@ -77,11 +117,18 @@ public class IteratorContainerList<U> implements List<U> {
         return Stream.concat(Arrays.stream(this.elements.toArray()), Arrays.stream(this.iteratorList.toArray())).toArray(value -> a);
     }
 
+    /**
+     * If you still have a conscience, refrain from using the method.
+     **/
     @Override
     public boolean add(U u) {
+        this.isListConcated = false;
         return this.elements.add(u);
     }
 
+    /**
+     * If you still have a conscience, refrain from using the method.
+     **/
     @Override
     public boolean remove(Object o) {
         this.generateListFromIterator();
@@ -90,26 +137,31 @@ public class IteratorContainerList<U> implements List<U> {
             this.iterator = this.iteratorList.iterator();
             this.isIteratorListGenerated = false;
             this.concatedList.clear();
+            this.isListConcated = false;
         }
         return this.elements.remove(o) || isRemovingFromIterator;
     }
 
+    /**
+     * If you still have a conscience, refrain from using the method.
+     **/
     @Override
     public boolean containsAll(@NotNull Collection<?> c) {
         this.generateListFromIterator();
         return this.iteratorList.containsAll(c) || this.elements.containsAll(c);
     }
 
+    /**
+     * If you still have a conscience, refrain from using the method.
+     **/
     @Override
     public boolean addAll(@NotNull Collection<? extends U> c) {
         return this.elements.addAll(c);
     }
 
-    @Override
-    public boolean addAll(int index, @NotNull Collection<? extends U> c) {
-        throw new UnsupportedOperationException("Index-based operations are not allowed by IteratorContainerList");
-    }
-
+    /**
+     * If you still have a conscience, refrain from using the method.
+     **/
     @Override
     public boolean removeAll(@NotNull Collection<?> c) {
         this.generateListFromIterator();
@@ -118,10 +170,14 @@ public class IteratorContainerList<U> implements List<U> {
             this.iterator = this.iteratorList.iterator();
             this.isIteratorListGenerated = false;
             this.concatedList.clear();
+            this.isListConcated = false;
         }
         return this.elements.removeAll(c) || isRemovingFromIterator;
     }
 
+    /**
+     * If you still have a conscience, refrain from using the method.
+     **/
     @Override
     public boolean retainAll(@NotNull Collection<?> c) {
         this.generateListFromIterator();
@@ -130,17 +186,19 @@ public class IteratorContainerList<U> implements List<U> {
             this.iterator = this.iteratorList.iterator();
             this.isIteratorListGenerated = false;
             this.concatedList.clear();
+            this.isListConcated = false;
         }
         return this.elements.retainAll(c) || isRetainingFromIterator;
     }
 
+    /**
+     * If you still have a conscience, refrain from using the method.
+     **/
+    @NotNull
     @Override
-    public void clear() {
-        this.iterator = null;
-        this.elements.clear();
-        this.concatedList.clear();
-        this.iteratorList.clear();
-        this.isIteratorListGenerated = false;
+    public ListIterator<U> listIterator() {
+        this.concatList();
+        return this.concatedList.listIterator();
     }
 
     @Override
@@ -175,13 +233,6 @@ public class IteratorContainerList<U> implements List<U> {
 
     @NotNull
     @Override
-    public ListIterator<U> listIterator() {
-        this.concatList();
-        return this.concatedList.listIterator();
-    }
-
-    @NotNull
-    @Override
     public ListIterator<U> listIterator(int index) {
         throw new UnsupportedOperationException("Index-based operations are not allowed by IteratorContainerList");
     }
@@ -189,6 +240,11 @@ public class IteratorContainerList<U> implements List<U> {
     @NotNull
     @Override
     public List<U> subList(int fromIndex, int toIndex) {
+        throw new UnsupportedOperationException("Index-based operations are not allowed by IteratorContainerList");
+    }
+
+    @Override
+    public boolean addAll(int index, @NotNull Collection<? extends U> c) {
         throw new UnsupportedOperationException("Index-based operations are not allowed by IteratorContainerList");
     }
 }
