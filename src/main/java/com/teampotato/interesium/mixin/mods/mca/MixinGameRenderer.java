@@ -40,7 +40,7 @@ public abstract class MixinGameRenderer {
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void onCameraSet(CallbackInfo ci) {
-        if (MCARenderCache.areShadersAllowed == null) return;
+        MCA.areShadersAllowed();
         if (!MCARenderCache.areShadersAllowed) return;
         if (this.minecraft.cameraEntity == null) return;
         VillagerLike<?> villagerLike = CommonVillagerModel.getVillager(this.minecraft.cameraEntity);
