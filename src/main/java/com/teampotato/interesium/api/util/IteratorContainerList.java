@@ -48,10 +48,14 @@ public class IteratorContainerList<U> implements List<U> {
     public void clear() {
         this.iterator = null;
         this.elements.clear();
-        this.concatedList.clear();
-        this.isListConcated = false;
-        this.iteratorList.clear();
-        this.isIteratorListGenerated = false;
+        if (this.isListConcated) {
+            this.concatedList.clear();
+            this.isListConcated = false;
+        }
+        if (this.isIteratorListGenerated) {
+            this.iteratorList.clear();
+            this.isIteratorListGenerated = false;
+        }
     }
 
     /**
